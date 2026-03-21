@@ -43,7 +43,8 @@ export const useNotesStore = create<NotesState>((set, get) => ({
       .insert(note)
       .select()
       .single();
-    if (!error && data) {
+    if (error) throw new Error(error.message);
+    if (data) {
       set({ notes: [data, ...get().notes] });
       return data;
     }
