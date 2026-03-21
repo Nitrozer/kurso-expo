@@ -1,0 +1,202 @@
+import { View, ScrollView, Pressable } from 'react-native';
+import { useEffect, useState } from 'react';
+import { useRouter } from 'expo-router';
+import { Plus } from 'lucide-react-native';
+import { useNotebooksStore } from '../../../stores/notebooksStore';
+import { useNotesStore } from '../../../stores/notesStore';
+import { useSubjectsStore } from '../../../stores/subjectsStore';
+import { useAuthStore } from '../../../stores/authStore';
+import { NotebookCard } from '../../../components/notebooks/NotebookCard';
+import { NoteCard } from '../../../components/notes/NoteCard';
+import { KText } from '../../../components/ui/Text';
+import { colors } from '../../../theme/colors';
+
+type Tab = 'cahiers' | 'notes';
+
+export default function NotebooksScreen() {
+  const [activeTab, setActiveTab] = useState<Tab>('cahiers');
+  const [subjectFilter, setSubjectFilter] = useState<string | null>(null);
+  const router = useRouter();
+  const session = useAuthStore((s) => s.session);
+  const { notebooks, pages, fetchNotebooks, fetchPages, addNotebook } = useNotebooksStore();
+  const { notes, fetchNotes, addNote } = useNotesStore();
+  const { subjects, getSubject } = useSubjectsStore();
+
+  useEffect(() => {
+    if (session?.user) {
+      fetchNotebooks(session.user.id);
+      fetchNotes(session.user.id);
+    }
+  }, [session]);
+
+  const filteredNotes = subjectFilter
+    ? notes.filter((n) => n.subject_id === subjectFilter)
+    : notes;
+
+  const handleAddNotebook = async () => {
+    if (!session?.user) return;
+    const notebook = await addNotebook({
+      user_id: session.user.id,
+      subject_id: null,
+      title: 'Nouveau cahier',
+      cover_color: colors.blue,
+    });
+    if (notebook) {
+      router.push(`/notebooks/${notebook.id}` as never);
+    }
+  };
+
+  const handleAddNote = async () => {
+    if (!session?.user) return;
+    const note = await addNote({
+      user_id: session.user.id,
+      subject_id: null,
+      title: '',
+      content: { text: '' },
+      content_preview: null,
+    });
+    if (note) {
+      router.push(`/notebooks/note/${note.id}` as never);
+    }
+  };
+
+  return (
+    <View className="flex-1 bg-parchment">
+      <ScrollView className="flex-1 p-xxl" showsVerticalScrollIndicator={false}>
+        <KText preset="heroName" color={colors.ink} style={{ marginBottom: 20 }}>
+          Cahiers
+        </KText>
+
+        {/* Tab toggle */}
+        <View
+          style={{
+            flexDirection: 'row',
+            backgroundColor: colors.surfaceAlt,
+            borderRadius: 20,
+            padding: 3,
+            marginBottom: 20,
+            alignSelf: 'flex-start',
+          }}
+        >
+          {(['cahiers', 'notes'] as Tab[]).map((tab) => (
+            <Pressable
+              key={tab}
+              onPress={() => setActiveTab(tab)}
+              style={{
+                paddingHorizontal: 16,
+                paddingVertical: 7,
+                borderRadius: 18,
+                backgroundColor: activeTab === tab ? colors.bg : 'transparent',
+              }}
+            >
+              <KText
+                preset="badgePill"
+                color={activeTab === tab ? colors.ink : colors.inkMuted}
+              >
+                {tab === 'cahiers' ? 'Cahiers' : 'Notes'}
+              </KText>
+            </Pressable>
+          ))}
+        </View>
+
+        {activeTab === 'cahiers' && (
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 12 }}>
+            {notebooks.map((nb) => (
+              <View key={nb.id} style={{ width: '48%' }}>
+                <NotebookCard
+                  notebook={nb}
+                  pageCount={(pages[nb.id] ?? []).length}
+                  subjectName={nb.subject_id ? getSubject(nb.subject_id)?.name : undefined}
+                  onPress={() => router.push(`/notebooks/${nb.id}` as never)}
+                />
+              </View>
+            ))}
+          </View>
+        )}
+
+        {activeTab === 'notes' && (
+          <>
+            {/* Subject filter chips */}
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              style={{ marginBottom: 16 }}
+            >
+              <Pressable
+                onPress={() => setSubjectFilter(null)}
+                style={{
+                  paddingHorizontal: 12,
+                  paddingVertical: 5,
+                  borderRadius: 20,
+                  borderWidth: 1,
+                  borderColor: !subjectFilter ? colors.ink : colors.border,
+                  backgroundColor: !subjectFilter ? colors.dark : 'transparent',
+                  marginRight: 8,
+                }}
+              >
+                <KText
+                  preset="badgePill"
+                  color={!subjectFilter ? colors.bg : colors.inkSoft}
+                >
+                  Toutes
+                </KText>
+              </Pressable>
+              {subjects.map((s) => (
+                <Pressable
+                  key={s.id}
+                  onPress={() => setSubjectFilter(s.id)}
+                  style={{
+                    paddingHorizontal: 12,
+                    paddingVertical: 5,
+                    borderRadius: 20,
+                    borderWidth: 1,
+                    borderColor: subjectFilter === s.id ? s.color : colors.border,
+                    backgroundColor:
+                      subjectFilter === s.id ? s.color : 'transparent',
+                    marginRight: 8,
+                  }}
+                >
+                  <KText
+                    preset="badgePill"
+                    color={subjectFilter === s.id ? '#FFFFFF' : colors.inkSoft}
+                  >
+                    {s.name}
+                  </KText>
+                </Pressable>
+              ))}
+            </ScrollView>
+
+            {filteredNotes.map((note) => (
+              <NoteCard
+                key={note.id}
+                note={note}
+                subjectName={
+                  note.subject_id ? getSubject(note.subject_id)?.name : undefined
+                }
+                onPress={() => router.push(`/notebooks/note/${note.id}` as never)}
+              />
+            ))}
+          </>
+        )}
+      </ScrollView>
+
+      {/* FAB */}
+      <Pressable
+        onPress={activeTab === 'cahiers' ? handleAddNotebook : handleAddNote}
+        style={{
+          position: 'absolute',
+          bottom: 28,
+          right: 28,
+          width: 52,
+          height: 52,
+          borderRadius: 26,
+          backgroundColor: colors.dark,
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
+        <Plus size={22} strokeWidth={1.6} color={colors.bg} />
+      </Pressable>
+    </View>
+  );
+}
