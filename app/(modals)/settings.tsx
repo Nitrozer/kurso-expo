@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { View, Pressable, ScrollView, TextInput, Alert } from 'react-native';
 import { router } from 'expo-router';
 import { X, Pencil, Trash2, Plus } from 'lucide-react-native';
-import * as FileSystem from 'expo-file-system';
+import { documentDirectory, writeAsStringAsync } from 'expo-file-system/legacy';
 import * as Sharing from 'expo-sharing';
 import { KText } from '../../components/ui/Text';
 import { colors } from '../../theme/colors';
@@ -115,8 +115,8 @@ export default function SettingsModal() {
         exportedAt: new Date().toISOString(),
       };
       const json = JSON.stringify(data, null, 2);
-      const fileUri = FileSystem.documentDirectory + 'kurso-export.json';
-      await FileSystem.writeAsStringAsync(fileUri, json);
+      const fileUri = documentDirectory + 'kurso-export.json';
+      await writeAsStringAsync(fileUri, json);
       await Sharing.shareAsync(fileUri, { mimeType: 'application/json' });
     } catch {
       Alert.alert('Erreur', "Impossible d'exporter les données");

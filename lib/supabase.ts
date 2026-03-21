@@ -1,13 +1,13 @@
 import { createClient } from '@supabase/supabase-js';
-import { MMKV } from 'react-native-mmkv';
+import { createMMKV } from 'react-native-mmkv';
 import 'react-native-url-polyfill/auto';
 
-const storage = new MMKV({ id: 'supabase-auth' });
+const storage = createMMKV({ id: 'supabase-auth' });
 
 const mmkvStorageAdapter = {
   getItem: (key: string) => storage.getString(key) ?? null,
   setItem: (key: string, value: string) => storage.set(key, value),
-  removeItem: (key: string) => storage.delete(key),
+  removeItem: (key: string) => { storage.remove(key); },
 };
 
 const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL!;
