@@ -1,18 +1,22 @@
 import { useEffect } from 'react';
 import { View, Text, ScrollView } from 'react-native';
+import { router } from 'expo-router';
 import { textPresets } from '../../theme/typography';
 import { colors } from '../../theme/colors';
-import { formatTime } from '../../lib/utils';
-import { isToday } from '../../lib/utils';
+import { formatTime, isToday } from '../../lib/utils';
 import { useAuthStore } from '../../stores/authStore';
 import { useScheduleStore } from '../../stores/scheduleStore';
 import { useTasksStore } from '../../stores/tasksStore';
 import { useSubjectsStore } from '../../stores/subjectsStore';
+import { useSidebar } from '../../components/layout/SidebarContext';
 import { Header } from '../../components/dashboard/Header';
 import { StatsBand } from '../../components/dashboard/StatsBand';
 import { TimelineCard } from '../../components/dashboard/TimelineCard';
 import { SectionDivider } from '../../components/ui/SectionDivider';
 import { ProgressBar } from '../../components/ui/ProgressBar';
+import { Checkbox } from '../../components/ui/Checkbox';
+import { KText } from '../../components/ui/Text';
+import { MiniCalendar } from '../../components/calendar/MiniCalendar';
 
 function getEventStatus(event: { start_time: string; end_time: string }, now: Date): 'past' | 'now' | 'next' | 'later' {
   const start = new Date(event.start_time);
@@ -22,6 +26,68 @@ function getEventStatus(event: { start_time: string; end_time: string }, now: Da
   return 'later'; // will be refined below
 }
 
+function SidebarContent() {
+  const events = useScheduleStore((s) => s.events);
+  const tasks = useTasksStore((s) => s.tasks);
+  const toggleTask = useTasksStore((s) => s.toggleTask);
+
+  const todayEvents = events.filter((e) => isToday(new Date(e.start_time)));
+
+  // Next undone tasks (up to 5)
+  const undoneTasks = tasks
+    .filter((t) => !t.is_done)
+    .slice(0, 5);
+
+  return (
+    <View>
+      <MiniCalendar events={events} />
+
+      <View className="mt-lg">
+        <SectionDivider
+          title="Taches"
+          action="tout >"
+          onAction={() => router.push('/(main)/tasks')}
+        />
+      </View>
+
+      {undoneTasks.length === 0 ? (
+        <KText preset="courseDetail" color={colors.inkMuted}>
+          Aucune tache
+        </KText>
+      ) : (
+        undoneTasks.map((task) => (
+          <View key={task.id} className="flex-row items-center gap-sm py-xs">
+            <Checkbox checked={task.is_done} onToggle={() => toggleTask(task.id)} />
+            <KText
+              preset="taskText"
+              color={colors.ink}
+              numberOfLines={1}
+              style={{ flex: 1 }}
+            >
+              {task.title}
+            </KText>
+            {task.due_date && (
+              <KText preset="taskDue" color={colors.blue}>
+                {new Date(task.due_date).toLocaleDateString('fr-FR', {
+                  day: 'numeric',
+                  month: 'short',
+                })}
+              </KText>
+            )}
+          </View>
+        ))
+      )}
+
+      <View className="mt-lg">
+        <SectionDivider title="Notes recentes" />
+      </View>
+      <KText preset="courseDetail" color={colors.inkMuted}>
+        Aucune note
+      </KText>
+    </View>
+  );
+}
+
 export default function DashboardScreen() {
   const session = useAuthStore((s) => s.session);
   const fetchEvents = useScheduleStore((s) => s.fetchEvents);
@@ -29,6 +95,7 @@ export default function DashboardScreen() {
   const fetchSubjects = useSubjectsStore((s) => s.fetchSubjects);
   const events = useScheduleStore((s) => s.events);
   const subjects = useSubjectsStore((s) => s.subjects);
+  const { setSidebar } = useSidebar();
 
   useEffect(() => {
     const userId = session?.user?.id;
@@ -37,6 +104,12 @@ export default function DashboardScreen() {
     fetchTasks(userId);
     fetchSubjects(userId);
   }, [session?.user?.id]);
+
+  // Set sidebar content
+  useEffect(() => {
+    setSidebar(<SidebarContent />);
+    return () => setSidebar(null);
+  }, []);
 
   const now = new Date();
   const todayEvents = events.filter((e) => isToday(new Date(e.start_time)));
@@ -81,7 +154,7 @@ export default function DashboardScreen() {
 
       {/* Section Divider */}
       <View className="px-xxl">
-        <SectionDivider title="Aujourd'hui" action="semaine →" />
+        <SectionDivider title="Aujourd'hui" action="semaine >" />
       </View>
 
       {/* Timeline */}
