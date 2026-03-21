@@ -1,21 +1,17 @@
 import { View, useWindowDimensions, Pressable, ScrollView } from 'react-native';
-import { useEffect, useState, useCallback, useRef } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Download, Plus, ChevronLeft } from 'lucide-react-native';
 import { useNotebooksStore } from '../../../stores/notebooksStore';
 import { useAuthStore } from '../../../stores/authStore';
 import { useSidebar } from '../../../components/layout/SidebarContext';
-import { SkiaCanvas, DrawingPath } from '../../../components/notebooks/SkiaCanvas';
-import { DrawingToolbar } from '../../../components/notebooks/DrawingToolbar';
-import { PageThumbnail } from '../../../components/notebooks/PageThumbnail';
+import { SkiaCanvas, SkiaCanvasRef } from '../../../components/notebooks/SkiaCanvas';
 import { VoiceRecorder } from '../../../components/notebooks/VoiceRecorder';
+import { PageThumbnail } from '../../../components/notebooks/PageThumbnail';
 import { IconButton } from '../../../components/ui/IconButton';
 import { KText } from '../../../components/ui/Text';
 import { colors } from '../../../theme/colors';
 import { exportNotebookToPdf } from '../../../lib/pdf-export';
-import type { NotebookPage } from '../../../types';
-
-type TemplateType = 'blank' | 'lined' | 'grid' | 'dotted';
 
 export default function NotebookEditorScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -29,70 +25,33 @@ export default function NotebookEditorScreen() {
   const notebookPages = pages[id!] ?? [];
 
   const [currentPageIndex, setCurrentPageIndex] = useState(0);
-  const [strokeWidth, setStrokeWidth] = useState(4);
-  const [drawColor, setDrawColor] = useState('#111111');
-  const [template, setTemplate] = useState<TemplateType>('blank');
-  const [paths, setPaths] = useState<DrawingPath[]>([]);
-  const [redoStack, setRedoStack] = useState<DrawingPath[]>([]);
+  const [canUndo, setCanUndo] = useState(false);
+  const [canRedo, setCanRedo] = useState(false);
   const [showVoiceRecorder, setShowVoiceRecorder] = useState(false);
 
+  const canvasRef = useRef<SkiaCanvasRef>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const currentPage: NotebookPage | undefined = notebookPages[currentPageIndex];
+  const currentPage = notebookPages[currentPageIndex];
 
   useEffect(() => {
     if (id) fetchPages(id);
   }, [id]);
 
-  // Load paths from current page
-  useEffect(() => {
-    if (currentPage?.drawing_data) {
-      const data = currentPage.drawing_data as { paths?: DrawingPath[] };
-      setPaths(data.paths ?? []);
-    } else {
-      setPaths([]);
-    }
-    setRedoStack([]);
-    if (currentPage?.template) {
-      setTemplate(currentPage.template);
-    }
-  }, [currentPage?.id]);
+  // Get current drawing data as base64 string from the page
+  const currentDrawingData = currentPage?.drawing_data
+    ? (currentPage.drawing_data as { base64?: string }).base64 ?? null
+    : null;
 
-  // Auto-save debounced
-  const saveCurrentPage = useCallback(() => {
-    if (!currentPage) return;
-    updatePage(currentPage.id, {
-      drawing_data: { paths } as unknown as Record<string, unknown>,
-      template,
-    });
-  }, [currentPage?.id, paths, template, updatePage]);
-
-  useEffect(() => {
+  // Auto-save: when PencilKit fires onDrawEnd, debounce save to Supabase
+  const handleDrawingChange = (data: string) => {
     if (!currentPage) return;
     if (debounceRef.current) clearTimeout(debounceRef.current);
-    debounceRef.current = setTimeout(saveCurrentPage, 2000);
-    return () => {
-      if (debounceRef.current) clearTimeout(debounceRef.current);
-    };
-  }, [paths, template, saveCurrentPage]);
-
-  const handleUndo = () => {
-    if (paths.length === 0) return;
-    const last = paths[paths.length - 1];
-    setPaths(paths.slice(0, -1));
-    setRedoStack([...redoStack, last]);
-  };
-
-  const handleRedo = () => {
-    if (redoStack.length === 0) return;
-    const last = redoStack[redoStack.length - 1];
-    setRedoStack(redoStack.slice(0, -1));
-    setPaths([...paths, last]);
-  };
-
-  const handlePathsChange = (newPaths: DrawingPath[]) => {
-    setPaths(newPaths);
-    setRedoStack([]);
+    debounceRef.current = setTimeout(() => {
+      updatePage(currentPage.id, {
+        drawing_data: { base64: data } as unknown as Record<string, unknown>,
+      });
+    }, 2000);
   };
 
   const handleAddPage = async () => {
@@ -110,15 +69,13 @@ export default function NotebookEditorScreen() {
   };
 
   const handleExport = async () => {
-    // Simplified: export as empty pages with title
-    // Full implementation would capture canvas snapshots as base64
-    const pagesData = notebookPages.map(() => ({
-      imageBase64: '',
-    }));
+    // Capture current canvas as image for PDF
+    const imageData = await canvasRef.current?.captureAsBase64();
+    const pagesData = [{ imageBase64: imageData ?? '' }];
     await exportNotebookToPdf(pagesData, notebook?.title ?? 'Cahier');
   };
 
-  // Setup sidebar with page thumbnails
+  // Sidebar with page thumbnails
   useEffect(() => {
     setSidebar(
       <View style={{ padding: 12 }}>
@@ -153,10 +110,11 @@ export default function NotebookEditorScreen() {
       </View>
     );
     return () => setSidebar(null);
-  }, [notebookPages, currentPageIndex]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [notebookPages.length, currentPageIndex]);
 
   const canvasWidth = Math.min(windowWidth - 40, 800);
-  const canvasHeight = windowHeight - 200;
+  const canvasHeight = windowHeight - 140;
 
   return (
     <View className="flex-1 bg-parchment">
@@ -186,15 +144,15 @@ export default function NotebookEditorScreen() {
         </View>
       </View>
 
-      {/* Canvas */}
+      {/* Canvas — PencilKit natif */}
       <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
         {notebookPages.length > 0 ? (
           <SkiaCanvas
-            paths={paths}
-            onPathsChange={handlePathsChange}
-            template={template}
-            currentColor={drawColor}
-            currentStrokeWidth={strokeWidth}
+            ref={canvasRef}
+            drawingData={currentDrawingData}
+            onDrawingChange={handleDrawingChange}
+            onCanUndoChange={setCanUndo}
+            onCanRedoChange={setCanRedo}
             width={canvasWidth}
             height={canvasHeight}
           />
@@ -228,20 +186,40 @@ export default function NotebookEditorScreen() {
         />
       )}
 
-      {/* Toolbar */}
-      <DrawingToolbar
-        strokeWidth={strokeWidth}
-        color={drawColor}
-        template={template}
-        onStrokeChange={setStrokeWidth}
-        onColorChange={setDrawColor}
-        onTemplateChange={setTemplate}
-        onUndo={handleUndo}
-        onRedo={handleRedo}
-        onMicPress={() => setShowVoiceRecorder(true)}
-        canUndo={paths.length > 0}
-        canRedo={redoStack.length > 0}
-      />
+      {/* Minimal toolbar — PencilKit fournit son propre tool picker natif */}
+      <View
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: 12,
+          paddingVertical: 10,
+          borderTopWidth: 1,
+          borderTopColor: colors.border,
+          backgroundColor: colors.bg,
+        }}
+      >
+        <Pressable
+          onPress={() => canvasRef.current?.undo()}
+          disabled={!canUndo}
+          style={{ opacity: canUndo ? 1 : 0.3, padding: 8 }}
+        >
+          <KText preset="courseDetail" color={colors.ink}>Annuler</KText>
+        </Pressable>
+        <Pressable
+          onPress={() => canvasRef.current?.redo()}
+          disabled={!canRedo}
+          style={{ opacity: canRedo ? 1 : 0.3, padding: 8 }}
+        >
+          <KText preset="courseDetail" color={colors.ink}>Refaire</KText>
+        </Pressable>
+        <Pressable
+          onPress={() => setShowVoiceRecorder(true)}
+          style={{ padding: 8 }}
+        >
+          <KText preset="courseDetail" color={colors.blue}>Micro</KText>
+        </Pressable>
+      </View>
     </View>
   );
 }
