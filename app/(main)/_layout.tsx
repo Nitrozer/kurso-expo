@@ -1,9 +1,15 @@
 import { useEffect } from 'react';
+import { View } from 'react-native';
 import { Slot } from 'expo-router';
+import NetInfo from '@react-native-community/netinfo';
+import { WifiOff } from 'lucide-react-native';
 import { ThreeColumnLayout } from '../../components/layout/ThreeColumnLayout';
 import { SidebarProvider, useSidebar } from '../../components/layout/SidebarContext';
 import { Sidebar } from '../../components/layout/Sidebar';
+import { KText } from '../../components/ui/Text';
+import { colors } from '../../theme/colors';
 import { supabase } from '../../lib/supabase';
+import { useNetworkStore } from '../../lib/offline';
 import { useAuthStore } from '../../stores/authStore';
 import { useTasksStore } from '../../stores/tasksStore';
 import { useScheduleStore } from '../../stores/scheduleStore';
@@ -17,6 +23,15 @@ import { useFlashcardsStore } from '../../stores/flashcardsStore';
 
 function MainLayoutInner() {
   const { content } = useSidebar();
+  const isOnline = useNetworkStore((s) => s.isOnline);
+
+  // Task 35: Network state listener
+  useEffect(() => {
+    const unsubscribe = NetInfo.addEventListener((state) => {
+      useNetworkStore.getState().setOnline(state.isConnected ?? true);
+    });
+    return () => unsubscribe();
+  }, []);
 
   // Task 34: Supabase Realtime subscriptions
   useEffect(() => {
@@ -86,6 +101,14 @@ function MainLayoutInner() {
 
   return (
     <ThreeColumnLayout sidebar={content ? <Sidebar>{content}</Sidebar> : undefined}>
+      {!isOnline && (
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: colors.surfaceAlt, paddingVertical: 4, paddingHorizontal: 16 }}>
+          <WifiOff size={12} color={colors.inkSoft} />
+          <KText style={{ fontFamily: 'DMSans_500Medium', fontSize: 9, color: colors.inkSoft }}>
+            Hors ligne
+          </KText>
+        </View>
+      )}
       <Slot />
     </ThreeColumnLayout>
   );
