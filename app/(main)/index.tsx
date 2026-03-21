@@ -95,7 +95,7 @@ export default function DashboardScreen() {
   const fetchSubjects = useSubjectsStore((s) => s.fetchSubjects);
   const events = useScheduleStore((s) => s.events);
   const subjects = useSubjectsStore((s) => s.subjects);
-  const { setSidebar } = useSidebar();
+  const setSidebar = useSidebar((s) => s.setSidebar);
 
   useEffect(() => {
     const userId = session?.user?.id;
@@ -105,10 +105,11 @@ export default function DashboardScreen() {
     fetchSubjects(userId);
   }, [session?.user?.id]);
 
-  // Set sidebar content
+  // Set sidebar content once on mount
   useEffect(() => {
     setSidebar(<SidebarContent />);
     return () => setSidebar(null);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const now = new Date();

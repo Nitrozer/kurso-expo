@@ -22,7 +22,7 @@ import { usePomodoroStore } from '../../stores/pomodoroStore';
 import { useFlashcardsStore } from '../../stores/flashcardsStore';
 
 function MainLayoutInner() {
-  const { content } = useSidebar();
+  const content = useSidebar((s) => s.content);
   const isOnline = useNetworkStore((s) => s.isOnline);
 
   // Task 35: Network state listener

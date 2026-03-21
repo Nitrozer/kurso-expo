@@ -1,26 +1,17 @@
-import { createContext, useContext, useState, useMemo, useCallback, ReactNode } from 'react';
+import { ReactNode } from 'react';
+import { create } from 'zustand';
 
-const SidebarContext = createContext<{
+type SidebarState = {
   content: ReactNode | null;
   setSidebar: (content: ReactNode | null) => void;
-}>({ content: null, setSidebar: () => {} });
+};
 
+export const useSidebar = create<SidebarState>((set) => ({
+  content: null,
+  setSidebar: (content) => set({ content }),
+}));
+
+// Keep SidebarProvider as a no-op wrapper for backward compatibility
 export function SidebarProvider({ children }: { children: ReactNode }) {
-  const [content, setContent] = useState<ReactNode | null>(null);
-
-  const setSidebar = useCallback((newContent: ReactNode | null) => {
-    setContent(newContent);
-  }, []);
-
-  const value = useMemo(() => ({ content, setSidebar }), [content, setSidebar]);
-
-  return (
-    <SidebarContext.Provider value={value}>
-      {children}
-    </SidebarContext.Provider>
-  );
-}
-
-export function useSidebar() {
-  return useContext(SidebarContext);
+  return <>{children}</>;
 }
