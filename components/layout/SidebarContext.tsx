@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, ReactNode } from 'react';
+import { createContext, useContext, useState, useMemo, useCallback, ReactNode } from 'react';
 
 const SidebarContext = createContext<{
   content: ReactNode | null;
@@ -6,9 +6,16 @@ const SidebarContext = createContext<{
 }>({ content: null, setSidebar: () => {} });
 
 export function SidebarProvider({ children }: { children: ReactNode }) {
-  const [content, setSidebar] = useState<ReactNode | null>(null);
+  const [content, setContent] = useState<ReactNode | null>(null);
+
+  const setSidebar = useCallback((newContent: ReactNode | null) => {
+    setContent(newContent);
+  }, []);
+
+  const value = useMemo(() => ({ content, setSidebar }), [content, setSidebar]);
+
   return (
-    <SidebarContext.Provider value={{ content, setSidebar }}>
+    <SidebarContext.Provider value={value}>
       {children}
     </SidebarContext.Provider>
   );

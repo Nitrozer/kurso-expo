@@ -1,5 +1,5 @@
 import '../global.css';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { Slot, router } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import {
@@ -16,6 +16,7 @@ import {
 import { supabase } from '../lib/supabase';
 import { useAuthStore } from '../stores/authStore';
 import { getProfile } from '../lib/auth';
+import type { Session } from '@supabase/supabase-js';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -29,50 +30,47 @@ export default function RootLayout() {
     DMSans_500Medium,
   });
 
-  const [isReady, setIsReady] = useState(false);
-  const setSession = useAuthStore((s) => s.setSession);
-  const setProfile = useAuthStore((s) => s.setProfile);
+  const [initialSession, setInitialSession] = useState<Session | null | undefined>(undefined);
+
+  const handleAuthChange = useCallback(async (session: Session | null) => {
+    useAuthStore.getState().setSession(session);
+    if (session?.user) {
+      const profile = await getProfile(session.user.id);
+      useAuthStore.getState().setProfile(profile);
+    } else {
+      useAuthStore.getState().setProfile(null);
+    }
+  }, []);
 
   // Initialize auth once
   useEffect(() => {
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
-      setSession(session);
-      if (session?.user) {
-        const profile = await getProfile(session.user.id);
-        setProfile(profile);
-      }
-      setIsReady(true);
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      handleAuthChange(session);
+      setInitialSession(session);
     });
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
-      setSession(session);
-      if (session?.user) {
-        const profile = await getProfile(session.user.id);
-        setProfile(profile);
-      } else {
-        setProfile(null);
-      }
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      handleAuthChange(session);
     });
 
     return () => subscription.unsubscribe();
-  }, []);
+  }, [handleAuthChange]);
 
-  // Navigate once when ready
+  // Navigate once when everything is ready
   useEffect(() => {
-    if (!isReady || !fontsLoaded) return;
+    if (initialSession === undefined || !fontsLoaded) return;
 
     SplashScreen.hideAsync();
-    const session = useAuthStore.getState().session;
 
-    if (session) {
+    if (initialSession) {
       router.replace('/(main)');
     } else {
       router.replace('/(auth)/login');
     }
-  }, [isReady, fontsLoaded]);
+  }, [initialSession, fontsLoaded]);
 
   if (!fontsLoaded && !fontError) return null;
-  if (!isReady) return null;
+  if (initialSession === undefined) return null;
 
   return <Slot />;
 }
