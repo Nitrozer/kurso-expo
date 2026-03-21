@@ -32,6 +32,13 @@
       "expo-font",
       "expo-router",
       "expo-sharing"
-    ]
+    ],
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "f1d6fa4b-f95f-4755-8692-29fb83e2c168"
+      }
+    },
+    "owner": "nitrozero"
   }
 }

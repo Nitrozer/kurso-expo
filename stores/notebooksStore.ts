@@ -46,7 +46,8 @@ export const useNotebooksStore = create<NotebooksState>((set, get) => ({
       .insert(notebook)
       .select()
       .single();
-    if (!error && data) {
+    if (error) throw new Error(error.message);
+    if (data) {
       set({ notebooks: [data, ...get().notebooks] });
       return data;
     }

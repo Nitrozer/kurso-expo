@@ -25,10 +25,17 @@ export default function RegisterScreen() {
     setLoading(true);
     try {
       const data = await signUp(email, password);
-      if (data.user) {
+      if (data.session && data.user) {
+        // Session is active, we can create the profile
         await createProfile(data.user.id, fullName, nickname, avatarLetter);
+        router.replace('/(main)');
+      } else if (data.user) {
+        // Email confirmation might be required, or session will come via onAuthStateChange
+        // Try creating profile with a small delay to let the session establish
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        await createProfile(data.user.id, fullName, nickname, avatarLetter);
+        router.replace('/(main)');
       }
-      router.replace('/(main)');
     } catch (error: any) {
       Alert.alert('Erreur', error.message);
     } finally {

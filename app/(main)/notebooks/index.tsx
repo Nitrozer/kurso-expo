@@ -1,4 +1,4 @@
-import { View, ScrollView, Pressable } from 'react-native';
+import { View, ScrollView, Pressable, Alert } from 'react-native';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'expo-router';
 import { Plus } from 'lucide-react-native';
@@ -35,28 +35,40 @@ export default function NotebooksScreen() {
 
   const handleAddNotebook = async () => {
     if (!session?.user) return;
-    const notebook = await addNotebook({
-      user_id: session.user.id,
-      subject_id: null,
-      title: 'Nouveau cahier',
-      cover_color: colors.blue,
-    });
-    if (notebook) {
-      router.push(`/notebooks/${notebook.id}` as never);
+    try {
+      const notebook = await addNotebook({
+        user_id: session.user.id,
+        subject_id: null,
+        title: 'Nouveau cahier',
+        cover_color: colors.blue,
+      });
+      if (notebook) {
+        router.push(`/notebooks/${notebook.id}` as never);
+      } else {
+        Alert.alert('Erreur', 'Impossible de créer le cahier');
+      }
+    } catch (e: any) {
+      Alert.alert('Erreur', e.message);
     }
   };
 
   const handleAddNote = async () => {
     if (!session?.user) return;
-    const note = await addNote({
-      user_id: session.user.id,
-      subject_id: null,
-      title: '',
-      content: { text: '' },
-      content_preview: null,
-    });
-    if (note) {
-      router.push(`/notebooks/note/${note.id}` as never);
+    try {
+      const note = await addNote({
+        user_id: session.user.id,
+        subject_id: null,
+        title: '',
+        content: null,
+        content_preview: null,
+      });
+      if (note) {
+        router.push(`/notebooks/note/${note.id}` as never);
+      } else {
+        Alert.alert('Erreur', 'Impossible de créer la note');
+      }
+    } catch (e: any) {
+      Alert.alert('Erreur', e.message);
     }
   };
 
