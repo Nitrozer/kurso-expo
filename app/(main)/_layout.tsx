@@ -82,7 +82,9 @@ function MainLayoutInner() {
       useMoodStore.getState().fetchMoods(userId),
       usePomodoroStore.getState().fetchSessions(userId),
       useFlashcardsStore.getState().fetchDecks(userId),
-    ]);
+    ]).catch(() => {
+      // Silently handle initial fetch errors (e.g. offline)
+    });
   }, []);
 
   // Task 36: TTL cache refresh (5 min interval)
