@@ -1,8 +1,12 @@
 import { supabase } from './supabase';
 import type { Profile } from '../types';
 
-export async function signUp(email: string, password: string) {
-  const { data, error } = await supabase.auth.signUp({ email, password });
+export async function signUp(email: string, password: string, metadata?: { full_name: string; nickname: string; avatar_letter: string }) {
+  const { data, error } = await supabase.auth.signUp({
+    email,
+    password,
+    options: metadata ? { data: metadata } : undefined,
+  });
   if (error) throw error;
   return data;
 }
@@ -29,9 +33,10 @@ export async function getProfile(userId: string): Promise<Profile | null> {
 }
 
 export async function createProfile(userId: string, fullName: string, nickname: string, avatarLetter: string): Promise<Profile> {
+  // Use upsert because the trigger may have already created a skeleton profile
   const { data, error } = await supabase
     .from('profiles')
-    .insert({ id: userId, full_name: fullName, nickname, avatar_letter: avatarLetter })
+    .upsert({ id: userId, full_name: fullName, nickname, avatar_letter: avatarLetter })
     .select()
     .single();
   if (error) throw error;

@@ -24,15 +24,14 @@ export default function RegisterScreen() {
     }
     setLoading(true);
     try {
-      const data = await signUp(email, password);
-      if (data.session && data.user) {
-        // Session is active, we can create the profile
-        await createProfile(data.user.id, fullName, nickname, avatarLetter);
-        router.replace('/(main)');
-      } else if (data.user) {
-        // Email confirmation might be required, or session will come via onAuthStateChange
-        // Try creating profile with a small delay to let the session establish
-        await new Promise(resolve => setTimeout(resolve, 1000));
+      const data = await signUp(email, password, {
+        full_name: fullName,
+        nickname,
+        avatar_letter: avatarLetter,
+      });
+      if (data.user) {
+        // The trigger auto-creates the profile with metadata
+        // Update it with full details via upsert
         await createProfile(data.user.id, fullName, nickname, avatarLetter);
         router.replace('/(main)');
       }
