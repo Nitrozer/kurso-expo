@@ -12,7 +12,8 @@
       "backgroundColor": "#F7F3ED"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.anonymous.kursoexpo"
     },
     "android": {
       "adaptiveIcon": {
@@ -21,14 +22,16 @@
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "package": "com.anonymous.kursoexpo"
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
       "expo-font",
-      "expo-router"
+      "expo-router",
+      "expo-sharing"
     ]
   }
 }
