@@ -22,7 +22,7 @@ export default function NotebookEditorScreen() {
   const router = useRouter();
   const session = useAuthStore((s) => s.session);
   const { getNotebook, pages, fetchPages, addPage, updatePage } = useNotebooksStore();
-  const { setSidebar } = useSidebar();
+  const setSidebar = useSidebar((s) => s.setSidebar);
   const { width: windowWidth, height: windowHeight } = useWindowDimensions();
 
   const notebook = getNotebook(id!);
