@@ -1,6 +1,6 @@
 import { View, Pressable } from 'react-native';
 import { useState, useEffect, useRef } from 'react';
-import { Audio } from 'expo-av';
+import { useAudioRecorder, AudioModule, RecordingPresets, useAudioPlayer } from 'expo-audio';
 import { Mic, Square, Play, Pause, X } from 'lucide-react-native';
 import { KText } from '../ui/Text';
 import { colors } from '../../theme/colors';
@@ -33,9 +33,10 @@ export function VoiceRecorder({ pageId, onClose }: Props) {
   const [duration, setDuration] = useState(0);
   const [audioUri, setAudioUri] = useState<string | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
-  const recordingRef = useRef<Audio.Recording | null>(null);
-  const soundRef = useRef<Audio.Sound | null>(null);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const recorder = useAudioRecorder(RecordingPresets.HIGH_QUALITY);
+  const player = useAudioPlayer(audioUri ?? '');
 
   const pulseScale = useSharedValue(1);
   const pulseStyle = useAnimatedStyle(() => ({
@@ -45,35 +46,24 @@ export function VoiceRecorder({ pageId, onClose }: Props) {
   useEffect(() => {
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
-      if (soundRef.current) soundRef.current.unloadAsync();
     };
   }, []);
 
   const startRecording = async () => {
     try {
-      const { status } = await Audio.requestPermissionsAsync();
-      if (status !== 'granted') return;
+      const status = await AudioModule.requestRecordingPermissionsAsync();
+      if (!status.granted) return;
 
-      await Audio.setAudioModeAsync({
-        allowsRecordingIOS: true,
-        playsInSilentModeIOS: true,
-      });
-
-      const recording = new Audio.Recording();
-      await recording.prepareToRecordAsync(Audio.RecordingOptionsPresets.HIGH_QUALITY);
-      await recording.startAsync();
-      recordingRef.current = recording;
+      recorder.record();
       setState('recording');
       setDuration(0);
 
-      // Pulse animation
       pulseScale.value = withRepeat(
         withTiming(1.3, { duration: 600 }),
         -1,
         true
       );
 
-      // Timer
       intervalRef.current = setInterval(() => {
         setDuration((d) => d + 1);
       }, 1000);
@@ -83,7 +73,6 @@ export function VoiceRecorder({ pageId, onClose }: Props) {
   };
 
   const stopRecording = async () => {
-    if (!recordingRef.current) return;
     try {
       cancelAnimation(pulseScale);
       pulseScale.value = 1;
@@ -92,9 +81,8 @@ export function VoiceRecorder({ pageId, onClose }: Props) {
         intervalRef.current = null;
       }
 
-      await recordingRef.current.stopAndUnloadAsync();
-      const uri = recordingRef.current.getURI();
-      recordingRef.current = null;
+      recorder.stop();
+      const uri = recorder.uri;
 
       if (uri) {
         setAudioUri(uri);
@@ -132,7 +120,6 @@ export function VoiceRecorder({ pageId, onClose }: Props) {
         .from('voice-notes')
         .getPublicUrl(filePath);
 
-      // Create voice_notes record
       await supabase.from('voice_notes').insert({
         user_id: session.user.id,
         notebook_page_id: pageId,
@@ -144,35 +131,14 @@ export function VoiceRecorder({ pageId, onClose }: Props) {
     }
   };
 
-  const togglePlayback = async () => {
+  const togglePlayback = () => {
     if (!audioUri) return;
-    try {
-      if (isPlaying && soundRef.current) {
-        await soundRef.current.pauseAsync();
-        setIsPlaying(false);
-        return;
-      }
-
-      if (soundRef.current) {
-        await soundRef.current.playAsync();
-        setIsPlaying(true);
-        return;
-      }
-
-      const { sound } = await Audio.Sound.createAsync(
-        { uri: audioUri },
-        { shouldPlay: true }
-      );
-      soundRef.current = sound;
+    if (isPlaying) {
+      player.pause();
+      setIsPlaying(false);
+    } else {
+      player.play();
       setIsPlaying(true);
-
-      sound.setOnPlaybackStatusUpdate((status) => {
-        if (status.isLoaded && status.didJustFinish) {
-          setIsPlaying(false);
-        }
-      });
-    } catch (err) {
-      console.error('Playback error:', err);
     }
   };
 
@@ -193,7 +159,6 @@ export function VoiceRecorder({ pageId, onClose }: Props) {
         justifyContent: 'space-between',
       }}
     >
-      {/* Close button */}
       <Pressable
         onPress={onClose}
         style={{ position: 'absolute', top: 8, right: 8 }}
@@ -217,7 +182,7 @@ export function VoiceRecorder({ pageId, onClose }: Props) {
               justifyContent: 'center',
             }}
           >
-            <Mic size={20} strokeWidth={1.6} color="#FFFFFF" />
+            <Mic size={20} strokeWidth={1.6} color={colors.darkText} />
           </Pressable>
         </View>
       )}
