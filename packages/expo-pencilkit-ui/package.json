@@ -10,8 +10,8 @@
     "clean": "expo-module clean",
     "lint": "expo-module lint",
     "test": "expo-module test",
-    "prepare": "expo-module prepare",
-    "prepublishOnly": "expo-module prepublishOnly",
+    "prepare": "echo 'skip build for local fork'",
+    "prepublishOnly": "echo 'skip'",
     "expo-module": "expo-module",
     "android": "expo run:android",
     "ios": "expo run:ios"
