@@ -76,7 +76,6 @@ export function StatBlock({ value, unit, label, variant }: Props) {
         },
       ]}
     >
-      {/* Ghost number — top right like Stitch */}
       <Text
         style={{
           position: 'absolute',
@@ -92,7 +91,6 @@ export function StatBlock({ value, unit, label, variant }: Props) {
         {value}
       </Text>
 
-      {/* Value + unit — at top */}
       <View style={{ flexDirection: 'row', alignItems: 'baseline', zIndex: 10 }}>
         <Text style={[textPresets.statBig, { color: config.textColor }]}>
           {value}
@@ -104,7 +102,6 @@ export function StatBlock({ value, unit, label, variant }: Props) {
         ) : null}
       </View>
 
-      {/* Label — at bottom */}
       <Text
         style={{
           fontFamily: 'DMSans_300Light',
