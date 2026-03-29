@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Slot } from 'expo-router';
 import NetInfo from '@react-native-community/netinfo';
 import { WifiOff } from 'lucide-react-native';
@@ -118,8 +119,10 @@ function MainLayoutInner() {
 
 export default function MainLayout() {
   return (
-    <SidebarProvider>
-      <MainLayoutInner />
-    </SidebarProvider>
+    <SafeAreaView style={{ flex: 1 }} edges={['top']}>
+      <SidebarProvider>
+        <MainLayoutInner />
+      </SidebarProvider>
+    </SafeAreaView>
   );
 }
