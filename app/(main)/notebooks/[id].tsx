@@ -1,7 +1,7 @@
 import { View, useWindowDimensions, Pressable, ScrollView, Alert } from 'react-native';
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { Download, Plus, ChevronLeft } from 'lucide-react-native';
+import { Download, Plus, ChevronLeft, Undo2, Redo2, ImagePlus, Mic } from 'lucide-react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { useNotebooksStore } from '../../../stores/notebooksStore';
 import { useAuthStore } from '../../../stores/authStore';
@@ -18,7 +18,7 @@ export default function NotebookEditorScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const session = useAuthStore((s) => s.session);
-  const { getNotebook, pages, fetchPages, addPage, updatePage } = useNotebooksStore();
+  const { getNotebook, pages, fetchPages, addPage, updatePage, deletePage } = useNotebooksStore();
   const setSidebar = useSidebar((s) => s.setSidebar);
   const { width: windowWidth, height: windowHeight } = useWindowDimensions();
 
@@ -40,18 +40,46 @@ export default function NotebookEditorScreen() {
     if (id) fetchPages(id);
   }, [id]);
 
-  // Get current drawing data as base64 string from the page
-  const currentDrawingData = currentPage?.drawing_data
-    ? (currentPage.drawing_data as { base64?: string }).base64 ?? null
-    : null;
+  // Load page data after canvas mounts (triggered by key change on SkiaCanvas)
+  useEffect(() => {
+    if (currentPage?.drawing_data && canvasRef.current) {
+      const data = (currentPage.drawing_data as { base64?: string }).base64;
+      if (data) {
+        setTimeout(() => {
+          canvasRef.current?.loadDrawingData(data);
+        }, 300); // Wait for PencilKit to initialize
+      }
+    }
+  }, [currentPage?.id]);
+
+  // Save current page data and capture thumbnail
+  const saveCurrentPage = useCallback(async () => {
+    if (!currentPage || !canvasRef.current) return;
+    const drawingData = await canvasRef.current.saveDrawingData();
+    if (drawingData) {
+      const thumbnail = await canvasRef.current.captureAsBase64();
+      updatePage(currentPage.id, {
+        drawing_data: { base64: drawingData, thumbnail: thumbnail ?? undefined } as unknown as Record<string, unknown>,
+      });
+    }
+  }, [currentPage, updatePage]);
+
+  // Switch pages: save current, then navigate
+  const switchToPage = useCallback(async (newIndex: number) => {
+    if (newIndex === currentPageIndex) return;
+    await saveCurrentPage();
+    setCurrentPageIndex(newIndex);
+  }, [currentPageIndex, saveCurrentPage]);
 
   // Auto-save: when PencilKit fires onDrawEnd, debounce save to Supabase
   const handleDrawingChange = (data: string) => {
     if (!currentPage) return;
     if (debounceRef.current) clearTimeout(debounceRef.current);
-    debounceRef.current = setTimeout(() => {
+    debounceRef.current = setTimeout(async () => {
+      // Also capture thumbnail on auto-save
+      const thumbnail = await canvasRef.current?.captureAsBase64();
       updatePage(currentPage.id, {
-        drawing_data: { base64: data } as unknown as Record<string, unknown>,
+        drawing_data: { base64: data, thumbnail: thumbnail ?? undefined } as unknown as Record<string, unknown>,
       });
     }, 2000);
   };
@@ -73,15 +101,35 @@ export default function NotebookEditorScreen() {
   const handleAddPage = () => {
     Alert.alert(
       'Nouvelle page',
-      'Choisissez un modèle',
+      'Choisissez un modele',
       [
         { text: 'Vierge', onPress: () => createPageWithTemplate('blank') },
-        { text: 'Ligné', onPress: () => createPageWithTemplate('lined') },
+        { text: 'Ligne', onPress: () => createPageWithTemplate('lined') },
         { text: 'Grille', onPress: () => createPageWithTemplate('grid') },
         { text: 'Points', onPress: () => createPageWithTemplate('dotted') },
         { text: 'Annuler', style: 'cancel' },
       ],
     );
+  };
+
+  const handleDeletePage = (pageId: string, notebookId: string) => {
+    if (notebookPages.length <= 1) {
+      Alert.alert('Impossible', 'Le cahier doit contenir au moins une page.');
+      return;
+    }
+    Alert.alert('Supprimer la page', 'Cette action est irreversible.', [
+      { text: 'Annuler', style: 'cancel' },
+      {
+        text: 'Supprimer',
+        style: 'destructive',
+        onPress: async () => {
+          await deletePage(pageId, notebookId);
+          if (currentPageIndex >= notebookPages.length - 1) {
+            setCurrentPageIndex(Math.max(0, currentPageIndex - 1));
+          }
+        },
+      },
+    ]);
   };
 
   const handlePickImage = async () => {
@@ -99,13 +147,12 @@ export default function NotebookEditorScreen() {
   };
 
   const handleExport = async () => {
-    // Capture current canvas as image for PDF
     const imageData = await canvasRef.current?.captureAsBase64();
     const pagesData = [{ imageBase64: imageData ?? '' }];
     await exportNotebookToPdf(pagesData, notebook?.title ?? 'Cahier');
   };
 
-  // Sidebar with page thumbnails
+  // Sidebar with page thumbnails + delete
   useEffect(() => {
     setSidebar(
       <View style={{ padding: 12 }}>
@@ -118,7 +165,8 @@ export default function NotebookEditorScreen() {
               key={page.id}
               page={page}
               isActive={index === currentPageIndex}
-              onPress={() => setCurrentPageIndex(index)}
+              onPress={() => switchToPage(index)}
+              onDelete={() => handleDeletePage(page.id, id!)}
             />
           ))}
           <Pressable
@@ -144,42 +192,61 @@ export default function NotebookEditorScreen() {
   }, [notebookPages.length, currentPageIndex]);
 
   const canvasWidth = Math.min(windowWidth - 40, 800);
-  const canvasHeight = windowHeight - 140;
+  const canvasHeight = windowHeight - 80;
 
   return (
     <View className="flex-1 bg-parchment">
-      {/* Header */}
+      {/* GoodNotes-style top toolbar */}
       <View
         style={{
           flexDirection: 'row',
           alignItems: 'center',
           justifyContent: 'space-between',
-          paddingHorizontal: 20,
-          paddingVertical: 12,
+          paddingHorizontal: 16,
+          paddingVertical: 10,
           borderBottomWidth: 1,
           borderBottomColor: colors.border,
+          backgroundColor: colors.bg,
         }}
       >
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+        {/* Left: back + title */}
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, flex: 1 }}>
           <IconButton icon={ChevronLeft} onPress={() => router.back()} />
-          <KText preset="sectionTitle" color={colors.ink}>
+          <KText preset="sectionTitle" color={colors.ink} numberOfLines={1} style={{ flexShrink: 1 }}>
             {notebook?.title ?? 'Cahier'}
           </KText>
         </View>
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-          <KText preset="notePreview" color={colors.inkMuted}>
-            Page {currentPageIndex + 1}/{notebookPages.length || 1}
-          </KText>
+
+        {/* Center: page counter */}
+        <KText preset="notePreview" color={colors.inkMuted} style={{ marginHorizontal: 12 }}>
+          Page {currentPageIndex + 1}/{notebookPages.length || 1}
+        </KText>
+
+        {/* Right: action icons */}
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+          <IconButton
+            icon={Undo2}
+            onPress={() => canvasRef.current?.undo()}
+            active={canUndo}
+          />
+          <IconButton
+            icon={Redo2}
+            onPress={() => canvasRef.current?.redo()}
+            active={canRedo}
+          />
+          <IconButton icon={ImagePlus} onPress={handlePickImage} />
+          <IconButton icon={Mic} onPress={() => setShowVoiceRecorder(true)} />
           <IconButton icon={Download} onPress={handleExport} />
         </View>
       </View>
 
-      {/* Canvas — PencilKit natif */}
+      {/* Canvas */}
       <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-        {notebookPages.length > 0 ? (
+        {notebookPages.length > 0 && currentPage ? (
           <SkiaCanvas
+            key={currentPage.id}
             ref={canvasRef}
-            drawingData={currentDrawingData}
+            template={currentPage.template}
             onDrawingChange={handleDrawingChange}
             onCanUndoChange={setCanUndo}
             onCanRedoChange={setCanRedo}
@@ -216,47 +283,6 @@ export default function NotebookEditorScreen() {
           onClose={() => setShowVoiceRecorder(false)}
         />
       )}
-
-      {/* Minimal toolbar — PencilKit fournit son propre tool picker natif */}
-      <View
-        style={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: 12,
-          paddingVertical: 10,
-          borderTopWidth: 1,
-          borderTopColor: colors.border,
-          backgroundColor: colors.bg,
-        }}
-      >
-        <Pressable
-          onPress={() => canvasRef.current?.undo()}
-          disabled={!canUndo}
-          style={{ opacity: canUndo ? 1 : 0.3, padding: 8 }}
-        >
-          <KText preset="courseDetail" color={colors.ink}>Annuler</KText>
-        </Pressable>
-        <Pressable
-          onPress={() => canvasRef.current?.redo()}
-          disabled={!canRedo}
-          style={{ opacity: canRedo ? 1 : 0.3, padding: 8 }}
-        >
-          <KText preset="courseDetail" color={colors.ink}>Refaire</KText>
-        </Pressable>
-        <Pressable
-          onPress={() => setShowVoiceRecorder(true)}
-          style={{ padding: 8 }}
-        >
-          <KText preset="courseDetail" color={colors.blue}>Micro</KText>
-        </Pressable>
-        <Pressable
-          onPress={handlePickImage}
-          style={{ padding: 8 }}
-        >
-          <KText preset="courseDetail" color={colors.blue}>Photo</KText>
-        </Pressable>
-      </View>
     </View>
   );
 }
