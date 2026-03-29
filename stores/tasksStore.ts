@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { supabase } from '../lib/supabase';
+import { scheduleTaskReminder } from '../lib/notifications';
 import type { Task } from '../types';
 import { useGamificationStore } from './gamificationStore';
 
@@ -23,7 +24,13 @@ export const useTasksStore = create<TasksState>((set, get) => ({
   },
   addTask: async (task) => {
     const { data, error } = await supabase.from('tasks').insert({ ...task, is_done: false, sort_order: 0 }).select().single();
-    if (!error && data) set({ tasks: [data, ...get().tasks] });
+    if (!error && data) {
+      set({ tasks: [data, ...get().tasks] });
+      // Schedule reminder for the day before due date
+      if (data.due_date) {
+        scheduleTaskReminder(data.title, new Date(data.due_date)).catch(() => {});
+      }
+    }
   },
   toggleTask: async (id) => {
     const task = get().tasks.find((t) => t.id === id);

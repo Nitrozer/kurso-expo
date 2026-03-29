@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { supabase } from '../lib/supabase';
+import { scheduleExamReminder } from '../lib/notifications';
 import type { Exam } from '../types';
 
 type ExamsState = {
@@ -27,7 +28,14 @@ export const useExamsStore = create<ExamsState>((set, get) => ({
   },
   addExam: async (exam) => {
     const { data, error } = await supabase.from('exams').insert(exam).select().single();
-    if (!error && data) set({ exams: [...get().exams, data] });
+    if (!error && data) {
+      set({ exams: [...get().exams, data] });
+      // Schedule reminders at J-1, J-3, J-7
+      const examDate = new Date(data.exam_date);
+      scheduleExamReminder(data.title, examDate, 1).catch(() => {});
+      scheduleExamReminder(data.title, examDate, 3).catch(() => {});
+      scheduleExamReminder(data.title, examDate, 7).catch(() => {});
+    }
   },
   updateExam: async (id, updates) => {
     const { data, error } = await supabase
