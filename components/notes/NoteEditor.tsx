@@ -131,12 +131,15 @@ export function NoteEditor({ noteId }: Props) {
         placeholder="Titre de la note..."
         placeholderTextColor={colors.inkGhost}
         style={{
-          fontFamily: fonts.serif.bold,
-          fontSize: 24,
+          fontFamily: 'Fraunces_900Black',
+          fontSize: 36,
+          fontStyle: 'italic',
           color: colors.ink,
-          paddingHorizontal: 20,
-          paddingTop: 12,
-          paddingBottom: 8,
+          paddingHorizontal: 32,
+          paddingTop: 16,
+          paddingBottom: 12,
+          lineHeight: 42,
+          letterSpacing: -0.5,
         }}
       />
 
@@ -150,11 +153,11 @@ export function NoteEditor({ noteId }: Props) {
         textAlignVertical="top"
         style={{
           fontFamily: fonts.sans.regular,
-          fontSize: 14,
-          lineHeight: 24,
-          color: '#1A1A1A',
-          paddingHorizontal: 20,
-          paddingBottom: 40,
+          fontSize: 16,
+          lineHeight: 28,
+          color: '#444656',
+          paddingHorizontal: 32,
+          paddingBottom: 120,
           minHeight: 400,
         }}
       />

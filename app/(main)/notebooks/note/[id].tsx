@@ -2,6 +2,7 @@ import { View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { ChevronLeft } from 'lucide-react-native';
 import { NoteEditor } from '../../../../components/notes/NoteEditor';
+import { FormattingToolbar } from '../../../../components/notes/FormattingToolbar';
 import { IconButton } from '../../../../components/ui/IconButton';
 import { KText } from '../../../../components/ui/Text';
 import { colors } from '../../../../theme/colors';
@@ -29,6 +30,7 @@ export default function NoteEditorScreen() {
         </KText>
       </View>
       <NoteEditor noteId={id!} />
+      <FormattingToolbar />
     </View>
   );
 }
