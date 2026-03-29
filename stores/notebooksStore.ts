@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { supabase } from '../lib/supabase';
 import type { Notebook, NotebookPage } from '../types';
+import { useGamificationStore } from './gamificationStore';
 
 type NotebooksState = {
   notebooks: Notebook[];
@@ -78,6 +79,9 @@ export const useNotebooksStore = create<NotebooksState>((set, get) => ({
           [data.notebook_id]: [...notebookPages, data],
         },
       });
+      if (data.user_id) {
+        useGamificationStore.getState().logAction(data.user_id, 'notebook_page');
+      }
       return data;
     }
     return null;

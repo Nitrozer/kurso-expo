@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { supabase } from '../lib/supabase';
 import type { Deck, Flashcard } from '../types';
+import { useGamificationStore } from './gamificationStore';
 
 function calculateSM2(quality: number, easeFactor: number, interval: number) {
   let newEase = easeFactor + (0.1 - (5 - quality) * (0.08 + (5 - quality) * 0.02));
@@ -115,6 +116,9 @@ export const useFlashcardsStore = create<FlashcardsState>((set, get) => ({
       const existing = newCards.get(deckId) ?? [];
       newCards.set(deckId, existing.map((c) => (c.id === id ? data : c)));
       set({ cards: newCards });
+      if (card.user_id) {
+        useGamificationStore.getState().logAction(card.user_id, 'flashcard_review');
+      }
     }
   },
 }));
