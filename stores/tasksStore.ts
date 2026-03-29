@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { supabase } from '../lib/supabase';
 import type { Task } from '../types';
+import { useGamificationStore } from './gamificationStore';
 
 type TasksState = {
   tasks: Task[];
@@ -30,7 +31,12 @@ export const useTasksStore = create<TasksState>((set, get) => ({
     const is_done = !task.is_done;
     const done_at = is_done ? new Date().toISOString() : null;
     const { data, error } = await supabase.from('tasks').update({ is_done, done_at, updated_at: new Date().toISOString() }).eq('id', id).select().single();
-    if (!error && data) set({ tasks: get().tasks.map((t) => (t.id === id ? data : t)) });
+    if (!error && data) {
+      set({ tasks: get().tasks.map((t) => (t.id === id ? data : t)) });
+      if (is_done && data.user_id) {
+        useGamificationStore.getState().logAction(data.user_id, 'task_complete');
+      }
+    }
   },
   deleteTask: async (id) => {
     const { error } = await supabase.from('tasks').delete().eq('id', id);
