@@ -17,10 +17,11 @@ type Props = {
   onCanRedoChange: (val: boolean) => void;
   width: number;
   height: number;
+  backgroundImage?: string;
 };
 
 export const SkiaCanvas = forwardRef<SkiaCanvasRef, Props>(function SkiaCanvas(
-  { drawingData, onDrawingChange, onCanUndoChange, onCanRedoChange, width, height },
+  { drawingData, onDrawingChange, onCanUndoChange, onCanRedoChange, width, height, backgroundImage },
   ref
 ) {
   const pencilKitRef = useRef<PencilKitViewRef>(null);
@@ -61,6 +62,7 @@ export const SkiaCanvas = forwardRef<SkiaCanvasRef, Props>(function SkiaCanvas(
       <PencilKitView
         ref={pencilKitRef}
         style={{ flex: 1, backgroundColor: colors.bg }}
+        imagePath={backgroundImage ? { uri: backgroundImage } : undefined}
         onDrawEnd={(event) => {
           onDrawingChange(event.nativeEvent.data);
         }}

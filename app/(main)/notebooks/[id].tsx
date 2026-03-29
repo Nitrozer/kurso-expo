@@ -2,6 +2,7 @@ import { View, useWindowDimensions, Pressable, ScrollView } from 'react-native';
 import { useEffect, useState, useRef } from 'react';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Download, Plus, ChevronLeft } from 'lucide-react-native';
+import * as ImagePicker from 'expo-image-picker';
 import { useNotebooksStore } from '../../../stores/notebooksStore';
 import { useAuthStore } from '../../../stores/authStore';
 import { useSidebar } from '../../../components/layout/SidebarContext';
@@ -28,6 +29,7 @@ export default function NotebookEditorScreen() {
   const [canUndo, setCanUndo] = useState(false);
   const [canRedo, setCanRedo] = useState(false);
   const [showVoiceRecorder, setShowVoiceRecorder] = useState(false);
+  const [backgroundImage, setBackgroundImage] = useState<string | undefined>(undefined);
 
   const canvasRef = useRef<SkiaCanvasRef>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -66,6 +68,20 @@ export default function NotebookEditorScreen() {
       thumbnail_url: null,
     });
     setCurrentPageIndex(notebookPages.length);
+  };
+
+  const handlePickImage = async () => {
+    const permResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (!permResult.granted) return;
+
+    const pickerResult = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ['images'],
+      quality: 0.8,
+    });
+
+    if (!pickerResult.canceled && pickerResult.assets[0]) {
+      setBackgroundImage(pickerResult.assets[0].uri);
+    }
   };
 
   const handleExport = async () => {
@@ -155,6 +171,7 @@ export default function NotebookEditorScreen() {
             onCanRedoChange={setCanRedo}
             width={canvasWidth}
             height={canvasHeight}
+            backgroundImage={backgroundImage}
           />
         ) : (
           <View style={{ alignItems: 'center' }}>
@@ -218,6 +235,12 @@ export default function NotebookEditorScreen() {
           style={{ padding: 8 }}
         >
           <KText preset="courseDetail" color={colors.blue}>Micro</KText>
+        </Pressable>
+        <Pressable
+          onPress={handlePickImage}
+          style={{ padding: 8 }}
+        >
+          <KText preset="courseDetail" color={colors.blue}>Photo</KText>
         </Pressable>
       </View>
     </View>
