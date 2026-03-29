@@ -1,7 +1,7 @@
-import { View, ScrollView, Pressable, Alert, TextInput, Modal } from 'react-native';
+import { View, ScrollView, Pressable, Alert, TextInput, Modal, useWindowDimensions } from 'react-native';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'expo-router';
-import { Plus, Search, X } from 'lucide-react-native';
+import { Plus, Search, X, LayoutGrid, List } from 'lucide-react-native';
 import { useNotebooksStore } from '../../../stores/notebooksStore';
 import { useNotesStore } from '../../../stores/notesStore';
 import { useSubjectsStore } from '../../../stores/subjectsStore';
@@ -27,11 +27,19 @@ export default function NotebooksScreen() {
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [newNotebookTitle, setNewNotebookTitle] = useState('');
   const [newNotebookColor, setNewNotebookColor] = useState(COVER_COLORS[0]);
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const router = useRouter();
   const session = useAuthStore((s) => s.session);
   const { notebooks, pages, fetchNotebooks, fetchPages, addNotebook, updateNotebook, deleteNotebook } = useNotebooksStore();
   const { notes, fetchNotes, addNote } = useNotesStore();
   const { subjects, getSubject } = useSubjectsStore();
+  const { width: windowWidth } = useWindowDimensions();
+
+  // 3 columns on wide screens (iPad), 2 on phone
+  const numColumns = windowWidth > 700 ? 3 : 2;
+  const cardGap = 16;
+  const horizontalPadding = 24;
+  const cardWidth = (windowWidth - horizontalPadding * 2 - cardGap * (numColumns - 1)) / numColumns;
 
   useEffect(() => {
     if (session?.user) {
@@ -68,7 +76,7 @@ export default function NotebooksScreen() {
       if (notebook) {
         router.push(`/notebooks/${notebook.id}` as never);
       } else {
-        Alert.alert('Erreur', 'Impossible de créer le cahier');
+        Alert.alert('Erreur', 'Impossible de creer le cahier');
       }
     } catch (e: any) {
       Alert.alert('Erreur', e.message);
@@ -88,7 +96,7 @@ export default function NotebooksScreen() {
       if (note) {
         router.push(`/notebooks/note/${note.id}` as never);
       } else {
-        Alert.alert('Erreur', 'Impossible de créer la note');
+        Alert.alert('Erreur', 'Impossible de creer la note');
       }
     } catch (e: any) {
       Alert.alert('Erreur', e.message);
@@ -97,10 +105,41 @@ export default function NotebooksScreen() {
 
   return (
     <View className="flex-1 bg-parchment">
-      <ScrollView className="flex-1 p-xxl" showsVerticalScrollIndicator={false}>
-        <KText preset="heroName" color={colors.ink} style={{ marginBottom: 20 }}>
-          Cahiers
-        </KText>
+      <ScrollView
+        className="flex-1"
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingHorizontal: horizontalPadding, paddingTop: 24, paddingBottom: 100 }}
+      >
+        {/* Header */}
+        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
+          <KText style={{ fontFamily: fonts.serif.bold, fontSize: 28, letterSpacing: -1, color: colors.ink }}>
+            Documents
+          </KText>
+
+          {/* Grid/List toggle (visual only — grid is always active) */}
+          <View style={{ flexDirection: 'row', gap: 4 }}>
+            <Pressable
+              onPress={() => setViewMode('grid')}
+              style={{
+                padding: 8,
+                borderRadius: 8,
+                backgroundColor: viewMode === 'grid' ? colors.surfaceAlt : 'transparent',
+              }}
+            >
+              <LayoutGrid size={18} strokeWidth={1.6} color={viewMode === 'grid' ? colors.ink : colors.inkMuted} />
+            </Pressable>
+            <Pressable
+              onPress={() => setViewMode('list')}
+              style={{
+                padding: 8,
+                borderRadius: 8,
+                backgroundColor: viewMode === 'list' ? colors.surfaceAlt : 'transparent',
+              }}
+            >
+              <List size={18} strokeWidth={1.6} color={viewMode === 'list' ? colors.ink : colors.inkMuted} />
+            </Pressable>
+          </View>
+        </View>
 
         {/* Tab toggle */}
         <View
@@ -109,7 +148,7 @@ export default function NotebooksScreen() {
             backgroundColor: colors.surfaceAlt,
             borderRadius: 20,
             padding: 3,
-            marginBottom: 20,
+            marginBottom: 8,
             alignSelf: 'flex-start',
           }}
         >
@@ -134,10 +173,37 @@ export default function NotebooksScreen() {
           ))}
         </View>
 
+        {/* Filter chip: "Tout" */}
         {activeTab === 'cahiers' && (
-          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 12 }}>
+          <View style={{ flexDirection: 'row', marginBottom: 20, marginTop: 12 }}>
+            <View
+              style={{
+                paddingHorizontal: 14,
+                paddingVertical: 6,
+                borderRadius: 20,
+                backgroundColor: colors.ink,
+              }}
+            >
+              <KText
+                preset="badgePill"
+                color={colors.darkText}
+              >
+                Tout
+              </KText>
+            </View>
+          </View>
+        )}
+
+        {activeTab === 'cahiers' && (
+          <View
+            style={{
+              flexDirection: 'row',
+              flexWrap: 'wrap',
+              gap: cardGap,
+            }}
+          >
             {notebooks.map((nb) => (
-              <View key={nb.id} style={{ width: '48%' }}>
+              <View key={nb.id} style={{ width: cardWidth }}>
                 <NotebookCard
                   notebook={nb}
                   pageCount={(pages[nb.id] ?? []).length}
@@ -149,6 +215,36 @@ export default function NotebooksScreen() {
                 />
               </View>
             ))}
+
+            {/* "Nouveau" dashed card — same size as notebook cards */}
+            <View style={{ width: cardWidth }}>
+              <Pressable onPress={handleOpenCreateDialog}>
+                <View
+                  style={{
+                    aspectRatio: 3 / 4,
+                    borderRadius: 16,
+                    borderWidth: 2,
+                    borderColor: colors.border,
+                    borderStyle: 'dashed',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    backgroundColor: 'transparent',
+                  }}
+                >
+                  <Plus size={28} strokeWidth={1.4} color={colors.inkMuted} />
+                  <KText
+                    style={{
+                      fontFamily: fonts.sans.medium,
+                      fontSize: 12,
+                      color: colors.inkMuted,
+                      marginTop: 8,
+                    }}
+                  >
+                    Nouveau
+                  </KText>
+                </View>
+              </Pressable>
+            </View>
           </View>
         )}
 
@@ -164,6 +260,7 @@ export default function NotebooksScreen() {
                 borderColor: '#E0D8CE',
                 borderRadius: 14,
                 marginBottom: 16,
+                marginTop: 12,
                 backgroundColor: '#FDF9F3',
               }}
             >
@@ -297,24 +394,6 @@ export default function NotebooksScreen() {
         )}
       </ScrollView>
 
-      {/* FAB */}
-      <Pressable
-        onPress={activeTab === 'cahiers' ? handleOpenCreateDialog : handleAddNote}
-        style={{
-          position: 'absolute',
-          bottom: 28,
-          right: 28,
-          width: 52,
-          height: 52,
-          borderRadius: 26,
-          backgroundColor: colors.dark,
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}
-      >
-        <Plus size={22} strokeWidth={1.6} color={colors.bg} />
-      </Pressable>
-
       {/* Create Notebook Dialog */}
       <Modal
         visible={showCreateDialog}
@@ -416,7 +495,7 @@ export default function NotebooksScreen() {
               }}
             >
               <KText style={{ fontFamily: fonts.sans.medium, fontSize: 13, color: colors.darkText }}>
-                Créer
+                Creer
               </KText>
             </Pressable>
           </View>

@@ -240,20 +240,29 @@ export default function NotebookEditorScreen() {
         </View>
       </View>
 
-      {/* Canvas */}
+      {/* Canvas with pinch-to-zoom */}
       <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
         {notebookPages.length > 0 && currentPage ? (
-          <SkiaCanvas
-            key={currentPage.id}
-            ref={canvasRef}
-            template={currentPage.template}
-            onDrawingChange={handleDrawingChange}
-            onCanUndoChange={setCanUndo}
-            onCanRedoChange={setCanRedo}
-            width={canvasWidth}
-            height={canvasHeight}
-            backgroundImage={backgroundImage}
-          />
+          <ScrollView
+            maximumZoomScale={5}
+            minimumZoomScale={1}
+            showsHorizontalScrollIndicator={false}
+            showsVerticalScrollIndicator={false}
+            bouncesZoom={true}
+            contentContainerStyle={{ alignItems: 'center', justifyContent: 'center' }}
+          >
+            <SkiaCanvas
+              key={currentPage.id}
+              ref={canvasRef}
+              template={currentPage.template}
+              onDrawingChange={handleDrawingChange}
+              onCanUndoChange={setCanUndo}
+              onCanRedoChange={setCanRedo}
+              width={canvasWidth}
+              height={canvasHeight}
+              backgroundImage={backgroundImage}
+            />
+          </ScrollView>
         ) : (
           <View style={{ alignItems: 'center' }}>
             <KText preset="courseDetail" color={colors.inkMuted} style={{ marginBottom: 12 }}>
