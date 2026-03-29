@@ -1,7 +1,7 @@
-import { View, Alert, Platform } from 'react-native';
-import { Card } from '../ui/Card';
+import { View, Alert, Platform, Pressable } from 'react-native';
 import { KText } from '../ui/Text';
 import { colors } from '../../theme/colors';
+import { fonts } from '../../theme/typography';
 import type { Notebook } from '../../types';
 
 const COVER_COLORS = [
@@ -16,6 +16,10 @@ const COVER_COLORS = [
   { label: 'Noir', value: '#111111' },
 ];
 
+// Mini template preview constants
+const PREVIEW_LINE_COLOR = 'rgba(255,255,255,0.25)';
+const PREVIEW_SPACING = 10;
+
 type Props = {
   notebook: Notebook;
   pageCount: number;
@@ -25,6 +29,42 @@ type Props = {
   onChangeColor?: (id: string, newColor: string) => void;
   onDelete?: (id: string) => void;
 };
+
+function MiniTemplatePreview({ color }: { color: string }) {
+  // Show faint lined pattern on the cover to hint at notebook content
+  const lines: React.ReactNode[] = [];
+  for (let y = PREVIEW_SPACING; y < 80; y += PREVIEW_SPACING) {
+    lines.push(
+      <View
+        key={`l-${y}`}
+        style={{
+          position: 'absolute',
+          top: y,
+          left: 12,
+          right: 12,
+          height: 0.5,
+          backgroundColor: PREVIEW_LINE_COLOR,
+        }}
+      />
+    );
+  }
+  return (
+    <View
+      style={{
+        position: 'absolute',
+        bottom: 16,
+        left: 16,
+        right: 16,
+        height: 90,
+        borderRadius: 6,
+        backgroundColor: 'rgba(255,255,255,0.15)',
+        overflow: 'hidden',
+      }}
+    >
+      {lines}
+    </View>
+  );
+}
 
 export function NotebookCard({ notebook, pageCount, subjectName, onPress, onRename, onChangeColor, onDelete }: Props) {
   const handleRename = () => {
@@ -81,47 +121,84 @@ export function NotebookCard({ notebook, pageCount, subjectName, onPress, onRena
     );
   };
 
+  const updatedDate = notebook.updated_at
+    ? new Date(notebook.updated_at).toLocaleDateString('fr-FR', {
+        day: 'numeric',
+        month: 'short',
+      })
+    : '';
+
   return (
-    <Card onPress={onPress} onLongPress={handleLongPress} className="mb-md flex-1">
-      <View
-        style={{
-          position: 'absolute',
-          left: 0,
-          top: 0,
-          bottom: 0,
-          width: 4,
-          backgroundColor: notebook.cover_color,
-          borderTopLeftRadius: 12,
-          borderBottomLeftRadius: 12,
-        }}
-      />
-      {subjectName && (
+    <View style={{ flex: 1 }}>
+      {/* Physical notebook cover */}
+      <Pressable onPress={onPress} onLongPress={handleLongPress}>
         <View
           style={{
-            alignSelf: 'flex-start',
-            paddingHorizontal: 8,
-            paddingVertical: 3,
-            borderRadius: 20,
-            borderWidth: 1,
-            borderColor: colors.border,
-            marginBottom: 8,
+            aspectRatio: 3 / 4,
+            backgroundColor: notebook.cover_color,
+            borderRadius: 16,
+            overflow: 'hidden',
+            shadowColor: '#000',
+            shadowOffset: { width: 0, height: 4 },
+            shadowOpacity: 0.15,
+            shadowRadius: 12,
+            elevation: 6,
           }}
         >
-          <KText preset="badgePill" color={colors.inkSoft}>
+          {/* Spine effect — left edge highlight */}
+          <View
+            style={{
+              position: 'absolute',
+              left: 0,
+              top: 0,
+              bottom: 0,
+              width: 6,
+              backgroundColor: 'rgba(0,0,0,0.15)',
+            }}
+          />
+
+          {/* Mini template preview on cover */}
+          <MiniTemplatePreview color={notebook.cover_color} />
+        </View>
+      </Pressable>
+
+      {/* Title + metadata below the card */}
+      <View style={{ marginTop: 10, paddingHorizontal: 2 }}>
+        <KText
+          style={{
+            fontFamily: fonts.sans.medium,
+            fontSize: 14,
+            color: colors.ink,
+            letterSpacing: -0.2,
+          }}
+          numberOfLines={1}
+        >
+          {notebook.title}
+        </KText>
+        {subjectName ? (
+          <KText
+            style={{
+              fontFamily: fonts.sans.light,
+              fontSize: 11,
+              color: colors.inkMuted,
+              marginTop: 2,
+            }}
+            numberOfLines={1}
+          >
             {subjectName}
           </KText>
-        </View>
-      )}
-      <KText
-        preset="sectionTitle"
-        color={colors.ink}
-        style={{ marginBottom: 4 }}
-      >
-        {notebook.title}
-      </KText>
-      <KText preset="notePreview" color={colors.inkMuted}>
-        {pageCount} {pageCount === 1 ? 'page' : 'pages'}
-      </KText>
-    </Card>
+        ) : null}
+        <KText
+          style={{
+            fontFamily: fonts.sans.light,
+            fontSize: 10,
+            color: colors.inkMuted,
+            marginTop: 2,
+          }}
+        >
+          {updatedDate}
+        </KText>
+      </View>
+    </View>
   );
 }
