@@ -6,6 +6,7 @@ import {
 } from 'lucide-react-native';
 import { colors } from '../../theme/colors';
 import { useAuthStore } from '../../stores/authStore';
+import { useGamificationStore } from '../../stores/gamificationStore';
 
 const mainItems = [
   { icon: House, path: '/(main)', label: 'Home' },
@@ -23,6 +24,7 @@ const extraItems = [
 export function Rail() {
   const pathname = usePathname();
   const profile = useAuthStore((s) => s.profile);
+  const streak = useGamificationStore((s) => s.streak);
 
   const isActive = (path: string) => {
     if (path === '/(main)') return pathname === '/' || pathname === '/(main)';
@@ -50,8 +52,11 @@ export function Rail() {
       <View className="items-center mb-xxl">
         <View className="flex-row items-baseline">
           <Text style={{ fontFamily: 'Fraunces_900Black', fontSize: 22, color: colors.ink }}>K</Text>
-          <Text style={{ fontFamily: 'Fraunces_300Light_Italic', fontSize: 14, color: colors.blue }}>°</Text>
+          <Text style={{ fontFamily: 'Fraunces_300Light_Italic', fontSize: 14, color: colors.blue }}>{'\u00B0'}</Text>
         </View>
+        <Text style={{ fontFamily: 'DMSans_500Medium', fontSize: 10, color: colors.inkSoft, marginTop: 4 }}>
+          {'\uD83D\uDD25'} {streak.current_streak}
+        </Text>
       </View>
       <View className="flex-1">
         {mainItems.map(renderItem)}
