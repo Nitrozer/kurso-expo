@@ -170,14 +170,14 @@ export default function NotebooksScreen() {
                   paddingVertical: 5,
                   borderRadius: 20,
                   borderWidth: 1,
-                  borderColor: !subjectFilter ? colors.ink : colors.border,
-                  backgroundColor: !subjectFilter ? colors.dark : 'transparent',
+                  borderColor: !subjectFilter ? colors.blue : colors.border,
+                  backgroundColor: !subjectFilter ? colors.blue : 'transparent',
                   marginRight: 8,
                 }}
               >
                 <KText
                   preset="badgePill"
-                  color={!subjectFilter ? colors.bg : colors.inkSoft}
+                  color={!subjectFilter ? '#FFFFFF' : colors.inkSoft}
                 >
                   Toutes
                 </KText>
@@ -191,9 +191,9 @@ export default function NotebooksScreen() {
                     paddingVertical: 5,
                     borderRadius: 20,
                     borderWidth: 1,
-                    borderColor: subjectFilter === s.id ? s.color : colors.border,
+                    borderColor: subjectFilter === s.id ? colors.blue : colors.border,
                     backgroundColor:
-                      subjectFilter === s.id ? s.color : 'transparent',
+                      subjectFilter === s.id ? colors.blue : 'transparent',
                     marginRight: 8,
                   }}
                 >
