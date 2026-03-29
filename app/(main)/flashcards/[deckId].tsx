@@ -1,13 +1,15 @@
 import { View, ScrollView, Pressable, TextInput, Alert } from 'react-native';
 import { useEffect, useState, useMemo } from 'react';
 import { useLocalSearchParams } from 'expo-router';
+import * as Sharing from 'expo-sharing';
+import * as FileSystem from 'expo-file-system/legacy';
 import { useFlashcardsStore } from '../../../stores/flashcardsStore';
 import { useAuthStore } from '../../../stores/authStore';
 import { FlipCard } from '../../../components/flashcards/FlipCard';
 import { KText } from '../../../components/ui/Text';
 import { colors } from '../../../theme/colors';
 import { fonts } from '../../../theme/typography';
-import { Trash2 } from 'lucide-react-native';
+import { Trash2, Share2 } from 'lucide-react-native';
 
 export default function DeckReviewScreen() {
   const { deckId } = useLocalSearchParams<{ deckId: string }>();
@@ -56,6 +58,26 @@ export default function DeckReviewScreen() {
     await deleteCard(cardId, deckId);
   };
 
+  const handleShareDeck = async () => {
+    if (!deck) return;
+    const exportData = {
+      deck_title: deck.title,
+      cards: allCards.map((c) => ({ front: c.front, back: c.back })),
+    };
+    try {
+      const fileUri = `${FileSystem.cacheDirectory}deck_${deckId}.json`;
+      await FileSystem.writeAsStringAsync(fileUri, JSON.stringify(exportData, null, 2), {
+        encoding: FileSystem.EncodingType.UTF8,
+      });
+      await Sharing.shareAsync(fileUri, {
+        mimeType: 'application/json',
+        dialogTitle: 'Partager le deck',
+      });
+    } catch {
+      // User cancelled or sharing not available
+    }
+  };
+
   const difficultyButtons = [
     { label: 'Difficile', quality: 2, color: colors.examRed },
     { label: 'Moyen', quality: 3, color: colors.inkSoft },
@@ -64,9 +86,29 @@ export default function DeckReviewScreen() {
 
   return (
     <ScrollView className="flex-1 bg-parchment p-xxl" showsVerticalScrollIndicator={false}>
-      <KText preset="heroName" color={colors.ink} style={{ marginBottom: 8 }}>
-        {deck?.title ?? 'Deck'}
-      </KText>
+      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+        <KText preset="heroName" color={colors.ink} style={{ flex: 1 }}>
+          {deck?.title ?? 'Deck'}
+        </KText>
+        <Pressable
+          onPress={handleShareDeck}
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: 6,
+            borderWidth: 1,
+            borderColor: colors.borderSoft,
+            borderRadius: 20,
+            paddingHorizontal: 12,
+            paddingVertical: 6,
+          }}
+        >
+          <Share2 size={14} strokeWidth={1.6} color={colors.inkSoft} />
+          <KText style={{ fontFamily: fonts.sans.medium, fontSize: 10, color: colors.inkSoft, letterSpacing: 0.3 }}>
+            Partager
+          </KText>
+        </Pressable>
+      </View>
 
       {/* Toggle review / manage */}
       <View className="flex-row gap-sm mb-xl">

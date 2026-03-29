@@ -1,6 +1,9 @@
 import { View, TextInput, Text } from 'react-native';
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { Pressable, ScrollView } from 'react-native';
+import * as Sharing from 'expo-sharing';
+import * as FileSystem from 'expo-file-system/legacy';
+import { Share2 } from 'lucide-react-native';
 import { useNotesStore } from '../../stores/notesStore';
 import { useSubjectsStore } from '../../stores/subjectsStore';
 import { useScheduleStore } from '../../stores/scheduleStore';
@@ -93,8 +96,41 @@ export function NoteEditor({ noteId }: Props) {
 
   const availableQuickTags = QUICK_TAGS.filter((t) => !tags.includes(t));
 
+  const handleShare = async () => {
+    const tagsLine = tags.length > 0 ? `Tags: ${tags.join(', ')}\n\n` : '';
+    const shareText = `# ${title || 'Sans titre'}\n\n${content}\n\n${tagsLine}\u2014 Partage depuis Kurso`;
+    try {
+      const fileUri = `${FileSystem.cacheDirectory}note_${noteId}.txt`;
+      await FileSystem.writeAsStringAsync(fileUri, shareText, { encoding: FileSystem.EncodingType.UTF8 });
+      await Sharing.shareAsync(fileUri, { mimeType: 'text/plain', dialogTitle: 'Partager la note' });
+    } catch {
+      // User cancelled or sharing not available
+    }
+  };
+
   return (
     <ScrollView className="flex-1 bg-parchment" showsVerticalScrollIndicator={false}>
+      {/* Share button */}
+      <View style={{ paddingHorizontal: 32, paddingTop: 12, alignItems: 'flex-end' }}>
+        <Pressable
+          onPress={handleShare}
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: 6,
+            borderWidth: 1,
+            borderColor: colors.borderSoft,
+            borderRadius: 20,
+            paddingHorizontal: 12,
+            paddingVertical: 5,
+          }}
+        >
+          <Share2 size={13} strokeWidth={1.6} color={colors.inkSoft} />
+          <KText style={{ fontFamily: fonts.sans.medium, fontSize: 9, color: colors.inkSoft, letterSpacing: 0.3 }}>
+            Partager
+          </KText>
+        </Pressable>
+      </View>
       {/* Subject chips */}
       <ScrollView
         horizontal
