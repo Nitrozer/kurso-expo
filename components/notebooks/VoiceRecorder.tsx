@@ -54,6 +54,12 @@ export function VoiceRecorder({ pageId, onClose }: Props) {
       const status = await AudioModule.requestRecordingPermissionsAsync();
       if (!status.granted) return;
 
+      // Enable recording mode on iOS before starting — required by expo-audio
+      await AudioModule.setAudioModeAsync({
+        allowsRecording: true,
+        playsInSilentMode: true,
+      });
+
       recorder.record();
       setState('recording');
       setDuration(0);
