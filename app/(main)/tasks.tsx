@@ -38,7 +38,6 @@ export default function TasksScreen() {
   return (
     <View className="flex-1 bg-parchment">
       <ScrollView className="flex-1" showsVerticalScrollIndicator={false} contentContainerStyle={{ padding: 28, paddingBottom: 120 }}>
-        {/* Stitch header */}
         <View style={{ marginBottom: 32 }}>
           <KText preset="heroName" color={colors.ink} style={{ fontSize: 30, lineHeight: 36 }}>
             Bonjour, {nickname}.
@@ -51,7 +50,6 @@ export default function TasksScreen() {
         <TaskList tasks={tasks} />
       </ScrollView>
 
-      {/* FAB blue */}
       <Pressable
         onPress={handleAddTask}
         style={{
