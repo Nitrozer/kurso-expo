@@ -3,6 +3,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { Pressable, ScrollView } from 'react-native';
 import { useNotesStore } from '../../stores/notesStore';
 import { useSubjectsStore } from '../../stores/subjectsStore';
+import { useScheduleStore } from '../../stores/scheduleStore';
 import { colors } from '../../theme/colors';
 import { fonts } from '../../theme/typography';
 import { KText } from '../ui/Text';
@@ -16,6 +17,7 @@ type Props = {
 export function NoteEditor({ noteId }: Props) {
   const { getNote, updateNote } = useNotesStore();
   const { subjects } = useSubjectsStore();
+  const { events } = useScheduleStore();
   const note = getNote(noteId);
 
   const [title, setTitle] = useState(note?.title ?? '');
@@ -27,6 +29,10 @@ export function NoteEditor({ noteId }: Props) {
   const [selectedSubjectId, setSelectedSubjectId] = useState<string | null>(
     note?.subject_id ?? null
   );
+  const [selectedEventId, setSelectedEventId] = useState<string | null>(
+    note?.event_id ?? null
+  );
+  const [showEventPicker, setShowEventPicker] = useState(false);
   const [tags, setTags] = useState<string[]>(note?.tags ?? []);
   const [showTagInput, setShowTagInput] = useState(false);
   const [newTag, setNewTag] = useState('');
@@ -41,11 +47,12 @@ export function NoteEditor({ noteId }: Props) {
       content: { text: content },
       content_preview: contentPreview || null,
       subject_id: selectedSubjectId,
+      event_id: selectedEventId,
       tags,
     });
     setSavedIndicator(true);
     setTimeout(() => setSavedIndicator(false), 1500);
-  }, [noteId, title, content, selectedSubjectId, tags, updateNote]);
+  }, [noteId, title, content, selectedSubjectId, selectedEventId, tags, updateNote]);
 
   // Auto-save with debounce
   useEffect(() => {
@@ -54,13 +61,14 @@ export function NoteEditor({ noteId }: Props) {
     return () => {
       if (debounceRef.current) clearTimeout(debounceRef.current);
     };
-  }, [title, content, selectedSubjectId, tags, save]);
+  }, [title, content, selectedSubjectId, selectedEventId, tags, save]);
 
   // Sync from store when note changes externally
   useEffect(() => {
     if (note) {
       setTitle(note.title);
       setSelectedSubjectId(note.subject_id);
+      setSelectedEventId(note.event_id ?? null);
       setTags(note.tags ?? []);
       const text =
         typeof note.content === 'object' && note.content !== null
@@ -262,6 +270,140 @@ export function NoteEditor({ noteId }: Props) {
                   </Pressable>
                 ))}
               </ScrollView>
+            )}
+          </View>
+        )}
+      </View>
+
+      {/* Associate course section */}
+      <View style={{ paddingHorizontal: 32, paddingTop: 8, paddingBottom: 4 }}>
+        {selectedEventId ? (
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+            <View
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                backgroundColor: colors.blueBg,
+                borderRadius: 20,
+                borderWidth: 1,
+                borderColor: colors.blueBorder,
+                paddingHorizontal: 10,
+                paddingVertical: 4,
+                gap: 6,
+              }}
+            >
+              <KText
+                style={{
+                  fontFamily: fonts.sans.medium,
+                  fontSize: 9,
+                  color: colors.blue,
+                  letterSpacing: 0.3,
+                }}
+              >
+                {events.find((e) => e.id === selectedEventId)?.title ?? 'Cours'}
+              </KText>
+              <Pressable onPress={() => setSelectedEventId(null)} hitSlop={8}>
+                <KText
+                  style={{
+                    fontFamily: fonts.sans.medium,
+                    fontSize: 11,
+                    color: colors.blueSoft,
+                    lineHeight: 13,
+                  }}
+                >
+                  ×
+                </KText>
+              </Pressable>
+            </View>
+          </View>
+        ) : (
+          <Pressable
+            onPress={() => setShowEventPicker(!showEventPicker)}
+            style={{
+              alignSelf: 'flex-start',
+              borderWidth: 1,
+              borderColor: colors.borderSoft,
+              borderRadius: 20,
+              paddingHorizontal: 10,
+              paddingVertical: 4,
+            }}
+          >
+            <KText
+              style={{
+                fontFamily: fonts.sans.medium,
+                fontSize: 9,
+                color: colors.inkSoft,
+                letterSpacing: 0.3,
+              }}
+            >
+              Associer un cours
+            </KText>
+          </Pressable>
+        )}
+
+        {showEventPicker && !selectedEventId && (
+          <View style={{ marginTop: 8, gap: 4 }}>
+            {events
+              .filter((e) => {
+                const eventDate = new Date(e.start_time);
+                const now = new Date();
+                const twoDaysAgo = new Date(now);
+                twoDaysAgo.setDate(twoDaysAgo.getDate() - 2);
+                return eventDate >= twoDaysAgo;
+              })
+              .slice(0, 10)
+              .map((e) => (
+                <Pressable
+                  key={e.id}
+                  onPress={() => {
+                    setSelectedEventId(e.id);
+                    setShowEventPicker(false);
+                  }}
+                  style={{
+                    backgroundColor: colors.surfaceAlt,
+                    borderRadius: 8,
+                    paddingHorizontal: 10,
+                    paddingVertical: 6,
+                  }}
+                >
+                  <KText
+                    style={{
+                      fontFamily: fonts.sans.medium,
+                      fontSize: 10,
+                      color: colors.ink,
+                    }}
+                  >
+                    {e.title}
+                  </KText>
+                  <KText
+                    style={{
+                      fontFamily: fonts.sans.regular,
+                      fontSize: 8,
+                      color: colors.inkSoft,
+                      marginTop: 1,
+                    }}
+                  >
+                    {new Date(e.start_time).toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'short' })}
+                  </KText>
+                </Pressable>
+              ))}
+            {events.filter((e) => {
+              const eventDate = new Date(e.start_time);
+              const now = new Date();
+              const twoDaysAgo = new Date(now);
+              twoDaysAgo.setDate(twoDaysAgo.getDate() - 2);
+              return eventDate >= twoDaysAgo;
+            }).length === 0 && (
+              <KText
+                style={{
+                  fontFamily: fonts.sans.regular,
+                  fontSize: 9,
+                  color: colors.inkMuted,
+                  paddingVertical: 4,
+                }}
+              >
+                Aucun cours récent
+              </KText>
             )}
           </View>
         )}

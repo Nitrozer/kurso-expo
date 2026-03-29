@@ -1,9 +1,11 @@
 import { View, Text, Pressable } from 'react-native';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
+import { router } from 'expo-router';
 import { textPresets } from '../../theme/typography';
 import { colors } from '../../theme/colors';
 import { Badge } from '../ui/Badge';
 import { formatTime } from '../../lib/utils';
+import { useNotesStore } from '../../stores/notesStore';
 import type { ScheduleEvent, Subject } from '../../types';
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
@@ -18,6 +20,7 @@ type Props = {
 
 export function TimelineCard({ event, status, subject }: Props) {
   const pressed = useSharedValue(0);
+  const linkedNote = useNotesStore((s) => s.notes.find((n) => n.event_id === event.id));
 
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [{ translateX: pressed.value * 3 }],
@@ -77,6 +80,17 @@ export function TimelineCard({ event, status, subject }: Props) {
         <Text style={[textPresets.courseDetail, { color: detailColor, marginTop: 2 }]}>
           {timeRange}
         </Text>
+      )}
+
+      {/* Linked note indicator */}
+      {linkedNote && (
+        <Pressable
+          onPress={() => router.push({ pathname: '/(main)/notes/[id]', params: { id: linkedNote.id } })}
+          hitSlop={8}
+          style={{ position: 'absolute', top: 10, right: 10 }}
+        >
+          <Text style={{ fontSize: 14 }}>{'\uD83D\uDCDD'}</Text>
+        </Pressable>
       )}
     </AnimatedPressable>
   );
