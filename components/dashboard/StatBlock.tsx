@@ -16,31 +16,35 @@ type Props = {
 
 const variantConfig = {
   big: {
-    width: 130,
+    minWidth: 130,
     bg: colors.dark,
     borderColor: 'transparent',
     textColor: '#FFFFFF',
+    labelColor: colors.darkMuted,
     ghostOpacity: 0.07,
   },
   med: {
-    width: 100,
+    minWidth: 100,
     bg: colors.bg,
     borderColor: colors.borderSoft,
     textColor: colors.ink,
+    labelColor: colors.darkMuted,
     ghostOpacity: 0.04,
   },
   sm: {
-    width: 88,
+    minWidth: 100,
     bg: colors.bg,
     borderColor: colors.borderSoft,
     textColor: colors.ink,
+    labelColor: colors.darkMuted,
     ghostOpacity: 0.04,
   },
   accent: {
-    width: 100,
-    bg: '#EEF0FF',
-    borderColor: '#C8D0FF',
-    textColor: colors.blue,
+    minWidth: 100,
+    bg: '#FDF9F3',
+    borderColor: colors.border,
+    textColor: colors.ink,
+    labelColor: colors.darkMuted,
     ghostOpacity: 0.04,
   },
 };
@@ -60,21 +64,23 @@ export function StatBlock({ value, unit, label, variant }: Props) {
       style={[
         animatedStyle,
         {
-          width: config.width,
+          minWidth: config.minWidth,
+          height: 160,
           backgroundColor: config.bg,
           borderColor: config.borderColor,
           borderWidth: config.borderColor !== 'transparent' ? 1 : 0,
-          borderRadius: 12,
-          padding: 14,
+          borderRadius: 14,
+          padding: 20,
           overflow: 'hidden',
+          justifyContent: 'space-between',
         },
       ]}
     >
-      {/* Ghost number */}
+      {/* Ghost number — top right like Stitch */}
       <Text
         style={{
           position: 'absolute',
-          bottom: -8,
+          top: 0,
           right: -4,
           fontSize: 72,
           fontFamily: 'Fraunces_900Black',
@@ -86,18 +92,29 @@ export function StatBlock({ value, unit, label, variant }: Props) {
         {value}
       </Text>
 
-      {/* Value + unit */}
-      <View className="flex-row items-baseline">
+      {/* Value + unit — at top */}
+      <View style={{ flexDirection: 'row', alignItems: 'baseline', zIndex: 10 }}>
         <Text style={[textPresets.statBig, { color: config.textColor }]}>
           {value}
         </Text>
-        <Text style={{ fontFamily: 'Fraunces_300Light_Italic', color: colors.blue, fontSize: 14, marginLeft: 3 }}>
-          {unit}
-        </Text>
+        {unit ? (
+          <Text style={{ fontFamily: 'Fraunces_300Light_Italic', color: colors.blue, fontSize: 20, marginLeft: 2 }}>
+            {unit}
+          </Text>
+        ) : null}
       </View>
 
-      {/* Label */}
-      <Text style={[textPresets.statLabel, { color: config.textColor, opacity: 0.7, marginTop: 4 }]}>
+      {/* Label — at bottom */}
+      <Text
+        style={{
+          fontFamily: 'DMSans_300Light',
+          fontSize: 9.5,
+          color: config.labelColor,
+          lineHeight: 13,
+          maxWidth: 70,
+          zIndex: 10,
+        }}
+      >
         {label}
       </Text>
     </AnimatedPressable>
