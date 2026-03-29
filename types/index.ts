@@ -45,6 +45,7 @@ export type Note = {
   title: string;
   content: Record<string, unknown> | null;
   content_preview: string | null;
+  tags: string[];
   created_at: string;
   updated_at: string;
 };

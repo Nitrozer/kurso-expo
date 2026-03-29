@@ -7,6 +7,8 @@ import { colors } from '../../theme/colors';
 import { fonts } from '../../theme/typography';
 import { KText } from '../ui/Text';
 
+const QUICK_TAGS = ['#examen', '#TP', '#important', '#révision', '#cours'];
+
 type Props = {
   noteId: string;
 };
@@ -25,6 +27,9 @@ export function NoteEditor({ noteId }: Props) {
   const [selectedSubjectId, setSelectedSubjectId] = useState<string | null>(
     note?.subject_id ?? null
   );
+  const [tags, setTags] = useState<string[]>(note?.tags ?? []);
+  const [showTagInput, setShowTagInput] = useState(false);
+  const [newTag, setNewTag] = useState('');
   const [savedIndicator, setSavedIndicator] = useState(false);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -36,10 +41,11 @@ export function NoteEditor({ noteId }: Props) {
       content: { text: content },
       content_preview: contentPreview || null,
       subject_id: selectedSubjectId,
+      tags,
     });
     setSavedIndicator(true);
     setTimeout(() => setSavedIndicator(false), 1500);
-  }, [noteId, title, content, selectedSubjectId, updateNote]);
+  }, [noteId, title, content, selectedSubjectId, tags, updateNote]);
 
   // Auto-save with debounce
   useEffect(() => {
@@ -48,13 +54,14 @@ export function NoteEditor({ noteId }: Props) {
     return () => {
       if (debounceRef.current) clearTimeout(debounceRef.current);
     };
-  }, [title, content, selectedSubjectId, save]);
+  }, [title, content, selectedSubjectId, tags, save]);
 
   // Sync from store when note changes externally
   useEffect(() => {
     if (note) {
       setTitle(note.title);
       setSelectedSubjectId(note.subject_id);
+      setTags(note.tags ?? []);
       const text =
         typeof note.content === 'object' && note.content !== null
           ? (note.content as { text?: string }).text ?? ''
@@ -62,6 +69,21 @@ export function NoteEditor({ noteId }: Props) {
       setContent(text);
     }
   }, [noteId]); // only on noteId change, not on every store update
+
+  const addTag = (tag: string) => {
+    const normalized = tag.startsWith('#') ? tag : `#${tag}`;
+    if (normalized.length > 1 && !tags.includes(normalized)) {
+      setTags((prev) => [...prev, normalized]);
+    }
+    setNewTag('');
+    setShowTagInput(false);
+  };
+
+  const removeTag = (tag: string) => {
+    setTags((prev) => prev.filter((t) => t !== tag));
+  };
+
+  const availableQuickTags = QUICK_TAGS.filter((t) => !tags.includes(t));
 
   return (
     <ScrollView className="flex-1 bg-parchment" showsVerticalScrollIndicator={false}>
@@ -114,6 +136,136 @@ export function NoteEditor({ noteId }: Props) {
           </Pressable>
         ))}
       </ScrollView>
+
+      {/* Tags section */}
+      <View style={{ paddingHorizontal: 32, paddingTop: 8, paddingBottom: 4 }}>
+        <View style={{ flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 6 }}>
+          {tags.map((tag) => (
+            <View
+              key={tag}
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                backgroundColor: colors.surfaceAlt,
+                borderRadius: 20,
+                paddingHorizontal: 8,
+                paddingVertical: 3,
+                gap: 4,
+              }}
+            >
+              <KText
+                style={{
+                  fontFamily: fonts.sans.medium,
+                  fontSize: 8,
+                  color: colors.inkSoft,
+                  letterSpacing: 0.4,
+                }}
+              >
+                {tag}
+              </KText>
+              <Pressable onPress={() => removeTag(tag)} hitSlop={8}>
+                <KText
+                  style={{
+                    fontFamily: fonts.sans.medium,
+                    fontSize: 10,
+                    color: colors.inkMuted,
+                    lineHeight: 12,
+                  }}
+                >
+                  ×
+                </KText>
+              </Pressable>
+            </View>
+          ))}
+
+          {/* Add tag button */}
+          {!showTagInput && (
+            <Pressable
+              onPress={() => setShowTagInput(true)}
+              style={{
+                width: 22,
+                height: 22,
+                borderRadius: 11,
+                borderWidth: 1,
+                borderColor: colors.borderSoft,
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <KText
+                style={{
+                  fontFamily: fonts.sans.medium,
+                  fontSize: 12,
+                  color: colors.inkMuted,
+                  lineHeight: 14,
+                }}
+              >
+                +
+              </KText>
+            </Pressable>
+          )}
+        </View>
+
+        {/* Tag input */}
+        {showTagInput && (
+          <View style={{ marginTop: 8 }}>
+            <TextInput
+              value={newTag}
+              onChangeText={setNewTag}
+              placeholder="#nouveau tag"
+              placeholderTextColor={colors.inkGhost}
+              autoFocus
+              onSubmitEditing={() => {
+                if (newTag.trim()) addTag(newTag.trim());
+              }}
+              onBlur={() => {
+                if (newTag.trim()) addTag(newTag.trim());
+                else setShowTagInput(false);
+              }}
+              style={{
+                fontFamily: fonts.sans.medium,
+                fontSize: 11,
+                color: colors.ink,
+                borderWidth: 1,
+                borderColor: colors.borderSoft,
+                borderRadius: 8,
+                paddingHorizontal: 10,
+                paddingVertical: 6,
+                marginBottom: 6,
+              }}
+            />
+            {/* Quick tag suggestions */}
+            {availableQuickTags.length > 0 && (
+              <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                {availableQuickTags.map((qt) => (
+                  <Pressable
+                    key={qt}
+                    onPress={() => addTag(qt)}
+                    style={{
+                      backgroundColor: colors.surfaceAlt,
+                      borderRadius: 20,
+                      paddingHorizontal: 10,
+                      paddingVertical: 4,
+                      marginRight: 6,
+                    }}
+                  >
+                    <KText
+                      style={{
+                        fontFamily: fonts.sans.medium,
+                        fontSize: 8,
+                        color: colors.inkSoft,
+                        letterSpacing: 0.4,
+                      }}
+                    >
+                      {qt}
+                    </KText>
+                  </Pressable>
+                ))}
+              </ScrollView>
+            )}
+          </View>
+        )}
+      </View>
 
       {/* Saved indicator */}
       {savedIndicator && (

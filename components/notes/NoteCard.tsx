@@ -9,6 +9,8 @@ type Props = {
 };
 
 export function NoteCard({ note, subjectName, onPress }: Props) {
+  const tags = note.tags ?? [];
+
   return (
     <Pressable
       onPress={onPress}
@@ -45,6 +47,33 @@ export function NoteCard({ note, subjectName, onPress }: Props) {
           {note.content_preview}
         </Text>
       ) : null}
+
+      {tags.length > 0 && (
+        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 4 }}>
+          {tags.map((tag) => (
+            <View
+              key={tag}
+              style={{
+                backgroundColor: colors.surfaceAlt,
+                borderRadius: 20,
+                paddingHorizontal: 8,
+                paddingVertical: 2,
+              }}
+            >
+              <Text
+                style={{
+                  fontFamily: 'DMSans_500Medium',
+                  fontSize: 8,
+                  color: colors.inkSoft,
+                  letterSpacing: 0.4,
+                }}
+              >
+                {tag}
+              </Text>
+            </View>
+          ))}
+        </View>
+      )}
     </Pressable>
   );
 }

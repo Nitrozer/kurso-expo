@@ -16,6 +16,7 @@ type Tab = 'cahiers' | 'notes';
 export default function NotebooksScreen() {
   const [activeTab, setActiveTab] = useState<Tab>('cahiers');
   const [subjectFilter, setSubjectFilter] = useState<string | null>(null);
+  const [tagFilter, setTagFilter] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const router = useRouter();
   const session = useAuthStore((s) => s.session);
@@ -30,8 +31,12 @@ export default function NotebooksScreen() {
     }
   }, [session]);
 
+  // Collect all unique tags from notes
+  const allTags = Array.from(new Set(notes.flatMap((n) => n.tags ?? [])));
+
   const filteredNotes = notes
     .filter((n) => !subjectFilter || n.subject_id === subjectFilter)
+    .filter((n) => !tagFilter || (n.tags ?? []).includes(tagFilter))
     .filter((n) => !searchQuery || n.title.toLowerCase().includes(searchQuery.toLowerCase()) || (n.content_preview ?? '').toLowerCase().includes(searchQuery.toLowerCase()));
 
   const handleAddNotebook = async () => {
@@ -206,6 +211,57 @@ export default function NotebooksScreen() {
                 </Pressable>
               ))}
             </ScrollView>
+
+            {/* Tag filter chips */}
+            {allTags.length > 0 && (
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                style={{ marginBottom: 16 }}
+              >
+                <Pressable
+                  onPress={() => setTagFilter(null)}
+                  style={{
+                    paddingHorizontal: 10,
+                    paddingVertical: 4,
+                    borderRadius: 20,
+                    borderWidth: 1,
+                    borderColor: !tagFilter ? colors.ink : colors.border,
+                    backgroundColor: !tagFilter ? colors.dark : 'transparent',
+                    marginRight: 6,
+                  }}
+                >
+                  <KText
+                    preset="badgePill"
+                    color={!tagFilter ? colors.bg : colors.inkSoft}
+                  >
+                    Tous les tags
+                  </KText>
+                </Pressable>
+                {allTags.map((tag) => (
+                  <Pressable
+                    key={tag}
+                    onPress={() => setTagFilter(tag)}
+                    style={{
+                      paddingHorizontal: 10,
+                      paddingVertical: 4,
+                      borderRadius: 20,
+                      borderWidth: 1,
+                      borderColor: tagFilter === tag ? colors.ink : colors.border,
+                      backgroundColor: tagFilter === tag ? colors.dark : 'transparent',
+                      marginRight: 6,
+                    }}
+                  >
+                    <KText
+                      preset="badgePill"
+                      color={tagFilter === tag ? colors.bg : colors.inkSoft}
+                    >
+                      {tag}
+                    </KText>
+                  </Pressable>
+                ))}
+              </ScrollView>
+            )}
 
             {filteredNotes.map((note) => (
               <NoteCard
