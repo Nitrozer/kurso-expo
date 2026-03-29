@@ -1,4 +1,4 @@
-import { View, useWindowDimensions, Pressable, ScrollView } from 'react-native';
+import { View, useWindowDimensions, Pressable, ScrollView, Alert } from 'react-native';
 import { useEffect, useState, useRef } from 'react';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Download, Plus, ChevronLeft } from 'lucide-react-native';
@@ -56,7 +56,7 @@ export default function NotebookEditorScreen() {
     }, 2000);
   };
 
-  const handleAddPage = async () => {
+  const createPageWithTemplate = async (template: 'blank' | 'lined' | 'grid' | 'dotted') => {
     if (!session?.user || !id) return;
     await addPage({
       notebook_id: id,
@@ -64,10 +64,24 @@ export default function NotebookEditorScreen() {
       page_number: notebookPages.length + 1,
       drawing_data: null,
       text_content: null,
-      template: 'blank',
+      template,
       thumbnail_url: null,
     });
     setCurrentPageIndex(notebookPages.length);
+  };
+
+  const handleAddPage = () => {
+    Alert.alert(
+      'Nouvelle page',
+      'Choisissez un modèle',
+      [
+        { text: 'Vierge', onPress: () => createPageWithTemplate('blank') },
+        { text: 'Ligné', onPress: () => createPageWithTemplate('lined') },
+        { text: 'Grille', onPress: () => createPageWithTemplate('grid') },
+        { text: 'Points', onPress: () => createPageWithTemplate('dotted') },
+        { text: 'Annuler', style: 'cancel' },
+      ],
+    );
   };
 
   const handlePickImage = async () => {
