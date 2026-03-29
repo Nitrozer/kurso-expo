@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { View, TextInput, Pressable, ScrollView, Switch, Alert } from 'react-native';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { KText } from '../../components/ui/Text';
 import { colors } from '../../theme/colors';
 import { fonts } from '../../theme/typography';
@@ -16,6 +16,9 @@ const RECURRENCE_OPTIONS = [
 ];
 
 export default function NewEventModal() {
+  const { eventId } = useLocalSearchParams<{ eventId?: string }>();
+  const isEditMode = !!eventId;
+
   const [title, setTitle] = useState('');
   const [location, setLocation] = useState('');
   const [selectedSubject, setSelectedSubject] = useState<string | null>(null);
@@ -28,8 +31,38 @@ export default function NewEventModal() {
   const [isLoading, setIsLoading] = useState(false);
 
   const addEvent = useScheduleStore((s) => s.addEvent);
+  const updateEvent = useScheduleStore((s) => s.updateEvent);
+  const events = useScheduleStore((s) => s.events);
   const subjects = useSubjectsStore((s) => s.subjects);
   const session = useAuthStore((s) => s.session);
+
+  // Pre-fill form when editing
+  useEffect(() => {
+    if (isEditMode && eventId) {
+      const existingEvent = events.find((e) => e.id === eventId);
+      if (existingEvent) {
+        setTitle(existingEvent.title);
+        setLocation(existingEvent.location ?? '');
+        setSelectedSubject(existingEvent.subject_id);
+        const startDate = new Date(existingEvent.start_time);
+        const endDate = new Date(existingEvent.end_time);
+        setDate(existingEvent.start_time.split('T')[0]);
+        setStartTime(
+          `${String(startDate.getHours()).padStart(2, '0')}:${String(startDate.getMinutes()).padStart(2, '0')}`,
+        );
+        setEndTime(
+          `${String(endDate.getHours()).padStart(2, '0')}:${String(endDate.getMinutes()).padStart(2, '0')}`,
+        );
+        if (existingEvent.recurrence_rule === 'FREQ=DAILY') {
+          setRecurrence('daily');
+        } else if (existingEvent.recurrence_rule === 'FREQ=WEEKLY') {
+          setRecurrence('weekly');
+        } else {
+          setRecurrence('none');
+        }
+      }
+    }
+  }, [isEditMode, eventId]);
 
   const handleSave = async () => {
     const userId = session?.user?.id;
@@ -49,7 +82,18 @@ export default function NewEventModal() {
         ? 'FREQ=WEEKLY'
         : null;
 
-      if (isExam) {
+      if (isEditMode && eventId) {
+        // Update existing event
+        await updateEvent(eventId, {
+          subject_id: selectedSubject,
+          title: title.trim(),
+          location: location.trim() || null,
+          start_time: startISO,
+          end_time: endISO,
+          recurrence_rule: recurrenceRule,
+          recurrence_end: null,
+        });
+      } else if (isExam) {
         // Save to exams table
         await supabase.from('exams').insert({
           user_id: userId,
@@ -84,7 +128,7 @@ export default function NewEventModal() {
   return (
     <ScrollView className="flex-1 bg-parchment p-xxl" showsVerticalScrollIndicator={false}>
       <KText preset="sectionTitle" color={colors.ink} style={{ marginBottom: 20 }}>
-        Nouvel evenement
+        {isEditMode ? 'Modifier l\'événement' : 'Nouvel evenement'}
       </KText>
 
       {/* Title */}
@@ -193,21 +237,23 @@ export default function NewEventModal() {
         })}
       </View>
 
-      {/* Exam toggle */}
-      <View className="flex-row items-center justify-between mb-lg">
-        <KText preset="taskText" color={colors.ink}>
-          Examen
-        </KText>
-        <Switch
-          value={isExam}
-          onValueChange={setIsExam}
-          trackColor={{ false: colors.border, true: colors.blue }}
-          thumbColor={colors.darkText}
-        />
-      </View>
+      {/* Exam toggle — only show in create mode */}
+      {!isEditMode && (
+        <View className="flex-row items-center justify-between mb-lg">
+          <KText preset="taskText" color={colors.ink}>
+            Examen
+          </KText>
+          <Switch
+            value={isExam}
+            onValueChange={setIsExam}
+            trackColor={{ false: colors.border, true: colors.blue }}
+            thumbColor={colors.darkText}
+          />
+        </View>
+      )}
 
       {/* Exam notes (conditional) */}
-      {isExam && (
+      {isExam && !isEditMode && (
         <TextInput
           value={examNotes}
           onChangeText={setExamNotes}
@@ -232,7 +278,9 @@ export default function NewEventModal() {
         }}
       >
         <KText preset="taskText" color={colors.darkText}>
-          {isLoading ? 'Creation...' : 'Creer'}
+          {isLoading
+            ? (isEditMode ? 'Enregistrement...' : 'Creation...')
+            : (isEditMode ? 'Enregistrer' : 'Creer')}
         </KText>
       </Pressable>
 

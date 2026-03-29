@@ -28,8 +28,10 @@ type FlashcardsState = {
   fetchDecks: (userId: string) => Promise<void>;
   fetchCards: (deckId: string) => Promise<void>;
   addDeck: (deck: Omit<Deck, 'id' | 'created_at' | 'updated_at'>) => Promise<void>;
+  updateDeck: (id: string, updates: Partial<Deck>) => Promise<void>;
   deleteDeck: (id: string) => Promise<void>;
   addCard: (card: Omit<Flashcard, 'id' | 'created_at' | 'updated_at' | 'ease_factor' | 'interval' | 'next_review'>) => Promise<void>;
+  updateCard: (id: string, deckId: string, updates: Partial<Flashcard>) => Promise<void>;
   deleteCard: (id: string, deckId: string) => Promise<void>;
   reviewCard: (id: string, quality: number) => Promise<void>;
 };
@@ -64,6 +66,17 @@ export const useFlashcardsStore = create<FlashcardsState>((set, get) => ({
     const { data, error } = await supabase.from('decks').insert(deck).select().single();
     if (!error && data) set({ decks: [data, ...get().decks] });
   },
+  updateDeck: async (id, updates) => {
+    const { data, error } = await supabase
+      .from('decks')
+      .update({ ...updates, updated_at: new Date().toISOString() })
+      .eq('id', id)
+      .select()
+      .single();
+    if (!error && data) {
+      set({ decks: get().decks.map((d) => (d.id === id ? data : d)) });
+    }
+  },
   deleteDeck: async (id) => {
     const { error } = await supabase.from('decks').delete().eq('id', id);
     if (!error) {
@@ -82,6 +95,20 @@ export const useFlashcardsStore = create<FlashcardsState>((set, get) => ({
       const newCards = new Map(get().cards);
       const existing = newCards.get(card.deck_id) ?? [];
       newCards.set(card.deck_id, [...existing, data]);
+      set({ cards: newCards });
+    }
+  },
+  updateCard: async (id, deckId, updates) => {
+    const { data, error } = await supabase
+      .from('flashcards')
+      .update({ ...updates, updated_at: new Date().toISOString() })
+      .eq('id', id)
+      .select()
+      .single();
+    if (!error && data) {
+      const newCards = new Map(get().cards);
+      const existing = newCards.get(deckId) ?? [];
+      newCards.set(deckId, existing.map((c) => (c.id === id ? data : c)));
       set({ cards: newCards });
     }
   },

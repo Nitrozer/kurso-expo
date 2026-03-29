@@ -1,4 +1,4 @@
-import { View, ScrollView, Pressable, TextInput, Alert } from 'react-native';
+import { View, ScrollView, Pressable, TextInput, Alert, Platform } from 'react-native';
 import { useEffect, useState, useMemo } from 'react';
 import { useLocalSearchParams } from 'expo-router';
 import * as Sharing from 'expo-sharing';
@@ -14,7 +14,7 @@ import { Trash2, Share2 } from 'lucide-react-native';
 export default function DeckReviewScreen() {
   const { deckId } = useLocalSearchParams<{ deckId: string }>();
   const session = useAuthStore((s) => s.session);
-  const { decks, cards, fetchCards, addCard, deleteCard, reviewCard } = useFlashcardsStore();
+  const { decks, cards, fetchCards, addCard, updateCard, deleteCard, reviewCard } = useFlashcardsStore();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
   const [reviewDone, setReviewDone] = useState(false);
@@ -246,8 +246,43 @@ export default function DeckReviewScreen() {
           {/* Card list */}
           <View className="gap-sm">
             {allCards.map((card) => (
-              <View
+              <Pressable
                 key={card.id}
+                onPress={() => {
+                  if (Platform.OS === 'ios' && deckId) {
+                    Alert.prompt(
+                      'Modifier le recto',
+                      '',
+                      (newFront) => {
+                        if (newFront && newFront.trim()) {
+                          Alert.prompt(
+                            'Modifier le verso',
+                            '',
+                            (newBack) => {
+                              if (newBack && newBack.trim()) {
+                                updateCard(card.id, deckId, { front: newFront.trim(), back: newBack.trim() });
+                              }
+                            },
+                            'plain-text',
+                            card.back,
+                          );
+                        }
+                      },
+                      'plain-text',
+                      card.front,
+                    );
+                  }
+                }}
+                onLongPress={() => {
+                  Alert.alert(
+                    'Supprimer la carte',
+                    `Supprimer cette carte ?`,
+                    [
+                      { text: 'Annuler', style: 'cancel' },
+                      { text: 'Supprimer', style: 'destructive', onPress: () => handleDeleteCard(card.id) },
+                    ],
+                  );
+                }}
                 style={{
                   borderWidth: 1,
                   borderColor: colors.border,
@@ -268,7 +303,7 @@ export default function DeckReviewScreen() {
                 <Pressable onPress={() => handleDeleteCard(card.id)}>
                   <Trash2 size={16} color={colors.inkMuted} strokeWidth={1.6} />
                 </Pressable>
-              </View>
+              </Pressable>
             ))}
           </View>
         </View>

@@ -10,6 +10,7 @@ type NotebooksState = {
   fetchNotebooks: (userId: string) => Promise<void>;
   fetchPages: (notebookId: string) => Promise<void>;
   addNotebook: (notebook: Omit<Notebook, 'id' | 'created_at' | 'updated_at'>) => Promise<Notebook | null>;
+  updateNotebook: (id: string, updates: Partial<Notebook>) => Promise<void>;
   deleteNotebook: (id: string) => Promise<void>;
   addPage: (page: Omit<NotebookPage, 'id' | 'created_at' | 'updated_at'>) => Promise<NotebookPage | null>;
   updatePage: (id: string, updates: Partial<NotebookPage>) => Promise<void>;
@@ -53,6 +54,17 @@ export const useNotebooksStore = create<NotebooksState>((set, get) => ({
       return data;
     }
     return null;
+  },
+  updateNotebook: async (id, updates) => {
+    const { data, error } = await supabase
+      .from('notebooks')
+      .update({ ...updates, updated_at: new Date().toISOString() })
+      .eq('id', id)
+      .select()
+      .single();
+    if (!error && data) {
+      set({ notebooks: get().notebooks.map((n) => (n.id === id ? data : n)) });
+    }
   },
   deleteNotebook: async (id) => {
     const { error } = await supabase.from('notebooks').delete().eq('id', id);

@@ -9,6 +9,7 @@ type TasksState = {
   isLoading: boolean;
   fetchTasks: (userId: string) => Promise<void>;
   addTask: (task: Omit<Task, 'id' | 'created_at' | 'updated_at' | 'is_done' | 'done_at' | 'sort_order'>) => Promise<void>;
+  updateTask: (id: string, updates: Partial<Task>) => Promise<void>;
   toggleTask: (id: string) => Promise<void>;
   deleteTask: (id: string) => Promise<void>;
 };
@@ -30,6 +31,17 @@ export const useTasksStore = create<TasksState>((set, get) => ({
       if (data.due_date) {
         scheduleTaskReminder(data.title, new Date(data.due_date)).catch(() => {});
       }
+    }
+  },
+  updateTask: async (id, updates) => {
+    const { data, error } = await supabase
+      .from('tasks')
+      .update({ ...updates, updated_at: new Date().toISOString() })
+      .eq('id', id)
+      .select()
+      .single();
+    if (!error && data) {
+      set({ tasks: get().tasks.map((t) => (t.id === id ? data : t)) });
     }
   },
   toggleTask: async (id) => {
