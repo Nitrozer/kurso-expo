@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from 'react';
-import { View, Pressable } from 'react-native';
+import { View, Pressable, ScrollView } from 'react-native';
 import { Upload } from 'lucide-react-native';
 import { router } from 'expo-router';
 import { KText } from '../../components/ui/Text';
@@ -7,6 +7,7 @@ import { IconButton } from '../../components/ui/IconButton';
 import { MonthView } from '../../components/calendar/MonthView';
 import { WeekView } from '../../components/calendar/WeekView';
 import { DayView } from '../../components/calendar/DayView';
+import { UpcomingEvents } from '../../components/calendar/UpcomingEvents';
 import { useScheduleStore } from '../../stores/scheduleStore';
 import { useAuthStore } from '../../stores/authStore';
 import { getMonthName } from '../../lib/utils';
@@ -83,7 +84,7 @@ export default function CalendarScreen() {
       </View>
 
       {/* Calendar view */}
-      <View className="flex-1 px-xxl">
+      <ScrollView className="flex-1 px-xxl" showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 120 }}>
         {selectedView === 'month' && (
           <MonthView
             events={events}
@@ -97,7 +98,15 @@ export default function CalendarScreen() {
         {selectedView === 'day' && (
           <DayView events={events} date={currentDate} />
         )}
-      </View>
+
+        {selectedView === 'month' && (
+          <UpcomingEvents
+            events={events
+              .filter((e) => new Date(e.start_time) > new Date())
+              .sort((a, b) => new Date(a.start_time).getTime() - new Date(b.start_time).getTime())}
+          />
+        )}
+      </ScrollView>
     </View>
   );
 }
