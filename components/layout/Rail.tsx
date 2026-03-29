@@ -5,6 +5,7 @@ import {
   Brain, Calculator, Settings,
 } from 'lucide-react-native';
 import { colors } from '../../theme/colors';
+import { useColors } from '../../theme/useColors';
 import { useAuthStore } from '../../stores/authStore';
 import { useGamificationStore } from '../../stores/gamificationStore';
 
@@ -25,6 +26,7 @@ export function Rail() {
   const pathname = usePathname();
   const profile = useAuthStore((s) => s.profile);
   const streak = useGamificationStore((s) => s.streak);
+  const c = useColors();
 
   const isActive = (path: string) => {
     if (path === '/(main)') return pathname === '/' || pathname === '/(main)';
@@ -42,19 +44,19 @@ export function Rail() {
         {active && (
           <View className="absolute left-0 top-[25%] h-[50%] w-[2px] bg-accent rounded-r-full" />
         )}
-        <Icon size={22} strokeWidth={1.6} color={active ? colors.ink : colors.inkGhost} />
+        <Icon size={22} strokeWidth={1.6} color={active ? c.ink : c.inkGhost} />
       </Pressable>
     );
   };
 
   return (
-    <View className="w-[72px] bg-parchment items-center py-xxl justify-between">
+    <View className="w-[72px] items-center py-xxl justify-between" style={{ backgroundColor: c.bg }}>
       <View className="items-center mb-xxl">
         <View className="flex-row items-baseline">
-          <Text style={{ fontFamily: 'Fraunces_900Black', fontSize: 22, color: colors.ink }}>K</Text>
-          <Text style={{ fontFamily: 'Fraunces_300Light_Italic', fontSize: 14, color: colors.blue }}>{'\u00B0'}</Text>
+          <Text style={{ fontFamily: 'Fraunces_900Black', fontSize: 22, color: c.ink }}>K</Text>
+          <Text style={{ fontFamily: 'Fraunces_300Light_Italic', fontSize: 14, color: c.blue }}>{'\u00B0'}</Text>
         </View>
-        <Text style={{ fontFamily: 'DMSans_500Medium', fontSize: 10, color: colors.inkSoft, marginTop: 4 }}>
+        <Text style={{ fontFamily: 'DMSans_500Medium', fontSize: 10, color: c.inkSoft, marginTop: 4 }}>
           {'\uD83D\uDD25'} {streak.current_streak}
         </Text>
       </View>
@@ -65,10 +67,10 @@ export function Rail() {
       </View>
       <View className="items-center">
         <Pressable onPress={() => router.push('/(modals)/settings')}>
-          <Settings size={20} strokeWidth={1.6} color={colors.inkGhost} />
+          <Settings size={20} strokeWidth={1.6} color={c.inkGhost} />
         </Pressable>
         <View className="w-[32px] h-[32px] rounded-full border border-border-soft items-center justify-center mt-md">
-          <Text style={{ fontFamily: 'DMSans_500Medium', fontSize: 12, color: colors.ink }}>
+          <Text style={{ fontFamily: 'DMSans_500Medium', fontSize: 12, color: c.ink }}>
             {profile?.avatar_letter ?? '?'}
           </Text>
         </View>

@@ -14,6 +14,7 @@ import { useScheduleStore } from '../../stores/scheduleStore';
 import { useNotesStore } from '../../stores/notesStore';
 import { useNotebooksStore } from '../../stores/notebooksStore';
 import { useExamsStore } from '../../stores/examsStore';
+import { useThemeStore } from '../../stores/themeStore';
 import { updateProfile, signOut } from '../../lib/auth';
 import type { Subject } from '../../types';
 
@@ -215,7 +216,12 @@ export default function SettingsModal() {
           </View>
         </Section>
 
-        {/* 3. Notifications */}
+        {/* 3. Thème */}
+        <Section title="Thème">
+          <ThemePicker />
+        </Section>
+
+        {/* 4. Notifications */}
         <Section title="Notifications">
           <View style={{ gap: 10 }}>
             <ToggleRow label="Rappels examens" value={examReminders} onToggle={() => setExamReminders(!examReminders)} />
@@ -223,7 +229,7 @@ export default function SettingsModal() {
           </View>
         </Section>
 
-        {/* 4. Données */}
+        {/* 5. Données */}
         <Section title="Données">
           <View style={{ gap: 10 }}>
             <Pressable
@@ -245,7 +251,7 @@ export default function SettingsModal() {
           </View>
         </Section>
 
-        {/* 5. À propos */}
+        {/* 6. À propos */}
         <Section title="À propos">
           <View style={{ gap: 4 }}>
             <KText preset="courseDetail" color={colors.inkSoft}>
@@ -326,6 +332,40 @@ function ToggleRow({ label, value, onToggle }: { label: string; value: boolean; 
             alignSelf: value ? 'flex-end' : 'flex-start',
           }}
         />
+      </Pressable>
+    </View>
+  );
+}
+
+function ThemePicker() {
+  const { mode, setTheme } = useThemeStore();
+  return (
+    <View style={{ flexDirection: 'row', borderWidth: 1, borderColor: colors.border, borderRadius: 8, overflow: 'hidden' }}>
+      <Pressable
+        onPress={() => setTheme('light')}
+        style={{
+          flex: 1,
+          paddingVertical: 8,
+          alignItems: 'center',
+          backgroundColor: mode === 'light' ? colors.dark : 'transparent',
+        }}
+      >
+        <KText preset="sectionAction" color={mode === 'light' ? colors.bg : colors.inkSoft}>
+          Clair
+        </KText>
+      </Pressable>
+      <Pressable
+        onPress={() => setTheme('dark')}
+        style={{
+          flex: 1,
+          paddingVertical: 8,
+          alignItems: 'center',
+          backgroundColor: mode === 'dark' ? colors.dark : 'transparent',
+        }}
+      >
+        <KText preset="sectionAction" color={mode === 'dark' ? colors.bg : colors.inkSoft}>
+          Sombre
+        </KText>
       </Pressable>
     </View>
   );

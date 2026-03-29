@@ -16,6 +16,9 @@ import {
 } from '@expo-google-fonts/dm-sans';
 import { supabase } from '../lib/supabase';
 import { useAuthStore } from '../stores/authStore';
+import { useThemeStore } from '../stores/themeStore';
+import { colors } from '../theme/colors';
+import { darkColors } from '../theme/darkColors';
 import { getProfile } from '../lib/auth';
 import type { Session } from '@supabase/supabase-js';
 
@@ -70,11 +73,14 @@ export default function RootLayout() {
     }
   }, [initialSession, fontsLoaded]);
 
+  const themeMode = useThemeStore((s) => s.mode);
+  const themeBg = themeMode === 'dark' ? darkColors.bg : colors.bg;
+
   if (!fontsLoaded && !fontError) return null;
   if (initialSession === undefined) return null;
 
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
+    <GestureHandlerRootView style={{ flex: 1, backgroundColor: themeBg }}>
       <Slot />
     </GestureHandlerRootView>
   );
