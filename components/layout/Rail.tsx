@@ -2,7 +2,7 @@ import { View, Pressable, Text } from 'react-native';
 import { usePathname, router } from 'expo-router';
 import {
   House, Calendar, BookOpen, CheckSquare, BarChart3,
-  Brain, Calculator, Settings,
+  Brain, Calculator, Settings, BookMarked,
 } from 'lucide-react-native';
 import { colors } from '../../theme/colors';
 import { useColors } from '../../theme/useColors';
@@ -15,6 +15,7 @@ const mainItems = [
   { icon: BookOpen, path: '/(main)/notebooks', label: 'Cahiers' },
   { icon: CheckSquare, path: '/(main)/tasks', label: 'Tâches' },
   { icon: BarChart3, path: '/(main)/stats', label: 'Stats' },
+  { icon: BookMarked, path: '/(main)/revision', label: 'Révision' },
 ];
 
 const extraItems = [
