@@ -20,6 +20,7 @@ import { useNotebooksStore } from '../../stores/notebooksStore';
 import { useExamsStore } from '../../stores/examsStore';
 import { useFlashcardsStore } from '../../stores/flashcardsStore';
 import { useGamificationStore } from '../../stores/gamificationStore';
+import { requestNotificationPermissions } from '../../lib/notifications';
 
 function MainLayoutInner() {
   const content = useSidebar((s) => s.content);
@@ -64,6 +65,11 @@ function MainLayoutInner() {
     return () => {
       supabase.removeChannel(channel);
     };
+  }, []);
+
+  // Request notification permissions on app load
+  useEffect(() => {
+    requestNotificationPermissions().catch(() => {});
   }, []);
 
   // Task 36: Fetch all data on authenticated app load
