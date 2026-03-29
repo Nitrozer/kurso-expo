@@ -1,7 +1,7 @@
-import { View, ScrollView, Pressable, Alert, TextInput } from 'react-native';
+import { View, ScrollView, Pressable, Alert, TextInput, Modal } from 'react-native';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'expo-router';
-import { Plus, Search } from 'lucide-react-native';
+import { Plus, Search, X } from 'lucide-react-native';
 import { useNotebooksStore } from '../../../stores/notebooksStore';
 import { useNotesStore } from '../../../stores/notesStore';
 import { useSubjectsStore } from '../../../stores/subjectsStore';
@@ -10,14 +10,23 @@ import { NotebookCard } from '../../../components/notebooks/NotebookCard';
 import { NoteCard } from '../../../components/notes/NoteCard';
 import { KText } from '../../../components/ui/Text';
 import { colors } from '../../../theme/colors';
+import { fonts } from '../../../theme/typography';
 
 type Tab = 'cahiers' | 'notes';
+
+const COVER_COLORS = [
+  '#3D5AFE', '#FF6B6B', '#4CAF50', '#FF9800',
+  '#9C27B0', '#00BCD4', '#795548', '#607D8B', '#111111',
+];
 
 export default function NotebooksScreen() {
   const [activeTab, setActiveTab] = useState<Tab>('cahiers');
   const [subjectFilter, setSubjectFilter] = useState<string | null>(null);
   const [tagFilter, setTagFilter] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const [newNotebookTitle, setNewNotebookTitle] = useState('');
+  const [newNotebookColor, setNewNotebookColor] = useState(COVER_COLORS[0]);
   const router = useRouter();
   const session = useAuthStore((s) => s.session);
   const { notebooks, pages, fetchNotebooks, fetchPages, addNotebook, updateNotebook, deleteNotebook } = useNotebooksStore();
@@ -39,15 +48,23 @@ export default function NotebooksScreen() {
     .filter((n) => !tagFilter || (n.tags ?? []).includes(tagFilter))
     .filter((n) => !searchQuery || n.title.toLowerCase().includes(searchQuery.toLowerCase()) || (n.content_preview ?? '').toLowerCase().includes(searchQuery.toLowerCase()));
 
-  const handleAddNotebook = async () => {
+  const handleOpenCreateDialog = () => {
+    setNewNotebookTitle('');
+    setNewNotebookColor(COVER_COLORS[0]);
+    setShowCreateDialog(true);
+  };
+
+  const handleCreateNotebook = async () => {
     if (!session?.user) return;
+    const title = newNotebookTitle.trim() || 'Nouveau cahier';
     try {
       const notebook = await addNotebook({
         user_id: session.user.id,
         subject_id: null,
-        title: 'Nouveau cahier',
-        cover_color: colors.blue,
+        title,
+        cover_color: newNotebookColor,
       });
+      setShowCreateDialog(false);
       if (notebook) {
         router.push(`/notebooks/${notebook.id}` as never);
       } else {
@@ -282,7 +299,7 @@ export default function NotebooksScreen() {
 
       {/* FAB */}
       <Pressable
-        onPress={activeTab === 'cahiers' ? handleAddNotebook : handleAddNote}
+        onPress={activeTab === 'cahiers' ? handleOpenCreateDialog : handleAddNote}
         style={{
           position: 'absolute',
           bottom: 28,
@@ -297,6 +314,114 @@ export default function NotebooksScreen() {
       >
         <Plus size={22} strokeWidth={1.6} color={colors.bg} />
       </Pressable>
+
+      {/* Create Notebook Dialog */}
+      <Modal
+        visible={showCreateDialog}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setShowCreateDialog(false)}
+      >
+        <View
+          style={{
+            flex: 1,
+            backgroundColor: 'rgba(0,0,0,0.4)',
+            justifyContent: 'center',
+            alignItems: 'center',
+            padding: 24,
+          }}
+        >
+          <View
+            style={{
+              backgroundColor: '#F7F3ED',
+              borderRadius: 20,
+              padding: 24,
+              width: '100%',
+              maxWidth: 360,
+              borderWidth: 1,
+              borderColor: '#E8E2DA',
+            }}
+          >
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+              <KText style={{ fontFamily: fonts.serif.bold, fontSize: 18, letterSpacing: -0.3, color: colors.ink }}>
+                Nouveau cahier
+              </KText>
+              <Pressable onPress={() => setShowCreateDialog(false)}>
+                <X size={20} strokeWidth={1.6} color={colors.inkMuted} />
+              </Pressable>
+            </View>
+
+            <TextInput
+              value={newNotebookTitle}
+              onChangeText={setNewNotebookTitle}
+              placeholder="Nom du cahier..."
+              placeholderTextColor={colors.inkMuted}
+              autoFocus
+              style={{
+                borderWidth: 1,
+                borderColor: '#E0D8CE',
+                borderRadius: 14,
+                paddingHorizontal: 14,
+                paddingVertical: 12,
+                fontFamily: fonts.sans.regular,
+                fontSize: 14,
+                color: colors.ink,
+                marginBottom: 20,
+              }}
+            />
+
+            <KText style={{ fontFamily: fonts.sans.medium, fontSize: 10, letterSpacing: 1.2, textTransform: 'uppercase', color: colors.inkSoft, marginBottom: 12 }}>
+              Couleur de couverture
+            </KText>
+
+            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 12, marginBottom: 24 }}>
+              {COVER_COLORS.map((c) => (
+                <Pressable
+                  key={c}
+                  onPress={() => setNewNotebookColor(c)}
+                  style={{
+                    width: 36,
+                    height: 36,
+                    borderRadius: 18,
+                    backgroundColor: c,
+                    borderWidth: newNotebookColor === c ? 3 : 0,
+                    borderColor: '#F7F3ED',
+                    shadowColor: newNotebookColor === c ? c : 'transparent',
+                    shadowOffset: { width: 0, height: 0 },
+                    shadowOpacity: newNotebookColor === c ? 0.5 : 0,
+                    shadowRadius: 6,
+                  }}
+                >
+                  {newNotebookColor === c && (
+                    <View
+                      style={{
+                        flex: 1,
+                        borderRadius: 18,
+                        borderWidth: 2,
+                        borderColor: 'rgba(255,255,255,0.6)',
+                      }}
+                    />
+                  )}
+                </Pressable>
+              ))}
+            </View>
+
+            <Pressable
+              onPress={handleCreateNotebook}
+              style={{
+                backgroundColor: colors.dark,
+                borderRadius: 14,
+                paddingVertical: 14,
+                alignItems: 'center',
+              }}
+            >
+              <KText style={{ fontFamily: fonts.sans.medium, fontSize: 13, color: colors.darkText }}>
+                Créer
+              </KText>
+            </Pressable>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
