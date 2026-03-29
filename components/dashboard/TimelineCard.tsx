@@ -54,8 +54,11 @@ export function TimelineCard({ event, status, subject }: Props) {
     >
       {/* Badge for current */}
       {isNow && (
-        <View className="mb-sm">
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
           <Badge label="EN COURS" variant="accent" />
+          <Text style={{ fontFamily: 'DMSans_400Regular', fontSize: 10, color: 'rgba(255,255,255,0.4)' }}>
+            restant {Math.max(0, Math.round((new Date(event.end_time).getTime() - Date.now()) / 60000))}m
+          </Text>
         </View>
       )}
 
