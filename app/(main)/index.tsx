@@ -144,6 +144,7 @@ export default function DashboardScreen() {
   const weekProgress = weekEvents.length > 0 ? pastWeekEvents.length / weekEvents.length : 0;
 
   return (
+    <View style={{ flex: 1 }}>
     <ScrollView className="flex-1 bg-parchment" showsVerticalScrollIndicator={false}>
       {/* Header */}
       <Header />
@@ -185,22 +186,27 @@ export default function DashboardScreen() {
               </View>
 
               {/* Vertical line + dot */}
-              <View style={{ width: 20, alignItems: 'center' }}>
-                {/* Top line segment */}
+              <View style={{ width: 24, alignItems: 'center' }}>
                 {index > 0 && (
                   <View style={{ width: 1, backgroundColor: '#E8E2DA', height: 8 }} />
                 )}
                 {index === 0 && <View style={{ height: 8 }} />}
-                {/* Dot */}
                 <View
                   style={{
-                    width: 8,
-                    height: 8,
-                    borderRadius: 4,
-                    backgroundColor: dotColor,
+                    width: 10,
+                    height: 10,
+                    borderRadius: 5,
+                    backgroundColor: status === 'now' ? colors.blue : status === 'past' ? colors.bg : colors.ink,
+                    borderWidth: status === 'past' ? 2 : 0,
+                    borderColor: '#E8E2DA',
+                    ...(status === 'now' ? {
+                      shadowColor: colors.blue,
+                      shadowOffset: { width: 0, height: 0 },
+                      shadowOpacity: 0.3,
+                      shadowRadius: 6,
+                    } : {}),
                   }}
                 />
-                {/* Bottom line segment */}
                 <View style={{ width: 1, backgroundColor: '#E8E2DA', flex: 1 }} />
               </View>
 
@@ -221,10 +227,41 @@ export default function DashboardScreen() {
         )}
       </View>
 
-      {/* Week progress */}
-      <View className="px-xxl pb-xxxl">
-        <ProgressBar progress={weekProgress} />
-      </View>
+      {/* Bottom spacing for floating bar */}
+      <View style={{ height: 100 }} />
     </ScrollView>
+
+    {/* Floating progress bar */}
+    <View
+      style={{
+        position: 'absolute',
+        bottom: 96,
+        left: 28,
+        right: 28,
+        backgroundColor: '#FDF9F3',
+        borderWidth: 1,
+        borderColor: colors.border,
+        borderRadius: 14,
+        padding: 16,
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 16,
+      }}
+    >
+      <View style={{ flex: 1 }}>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 }}>
+          <Text style={{ fontFamily: 'DMSans_500Medium', fontSize: 9, color: colors.ink, textTransform: 'uppercase', letterSpacing: 0.5 }}>
+            Progression Journee
+          </Text>
+          <Text style={{ fontFamily: 'DMSans_500Medium', fontSize: 9, color: colors.ink }}>
+            {Math.round(weekProgress * 100)}%
+          </Text>
+        </View>
+        <View style={{ height: 2, backgroundColor: '#E0D8CE', borderRadius: 1 }}>
+          <View style={{ height: 2, backgroundColor: colors.ink, borderRadius: 1, width: `${Math.round(weekProgress * 100)}%` }} />
+        </View>
+      </View>
+    </View>
+  </View>
   );
 }
