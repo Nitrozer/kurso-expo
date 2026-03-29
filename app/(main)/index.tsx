@@ -8,8 +8,10 @@ import { useAuthStore } from '../../stores/authStore';
 import { useScheduleStore } from '../../stores/scheduleStore';
 import { useTasksStore } from '../../stores/tasksStore';
 import { useSubjectsStore } from '../../stores/subjectsStore';
+import { useGamificationStore } from '../../stores/gamificationStore';
 import { useSidebar } from '../../components/layout/SidebarContext';
 import { Header } from '../../components/dashboard/Header';
+import { StreakCard } from '../../components/dashboard/StreakCard';
 import { StatsBand } from '../../components/dashboard/StatsBand';
 import { TimelineCard } from '../../components/dashboard/TimelineCard';
 import { SectionDivider } from '../../components/ui/SectionDivider';
@@ -103,6 +105,9 @@ export default function DashboardScreen() {
     fetchEvents(userId);
     fetchTasks(userId);
     fetchSubjects(userId);
+    useGamificationStore.getState().fetchStreak(userId);
+    useGamificationStore.getState().fetchTodayXP(userId);
+    useGamificationStore.getState().fetchBadges(userId);
   }, [session?.user?.id]);
 
   // Set sidebar content once on mount
@@ -148,6 +153,9 @@ export default function DashboardScreen() {
     <ScrollView className="flex-1 bg-parchment" showsVerticalScrollIndicator={false}>
       {/* Header */}
       <Header />
+
+      {/* Streak Card */}
+      <StreakCard />
 
       {/* Stats Band */}
       <View className="mb-lg">

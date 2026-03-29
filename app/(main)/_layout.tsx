@@ -19,6 +19,7 @@ import { useSubjectsStore } from '../../stores/subjectsStore';
 import { useNotebooksStore } from '../../stores/notebooksStore';
 import { useExamsStore } from '../../stores/examsStore';
 import { useFlashcardsStore } from '../../stores/flashcardsStore';
+import { useGamificationStore } from '../../stores/gamificationStore';
 
 function MainLayoutInner() {
   const content = useSidebar((s) => s.content);
@@ -79,6 +80,9 @@ function MainLayoutInner() {
       useNotebooksStore.getState().fetchNotebooks(userId),
       useExamsStore.getState().fetchExams(userId),
       useFlashcardsStore.getState().fetchDecks(userId),
+      useGamificationStore.getState().fetchStreak(userId),
+      useGamificationStore.getState().fetchTodayXP(userId),
+      useGamificationStore.getState().fetchBadges(userId),
     ]).catch(() => {
       // Silently handle initial fetch errors (e.g. offline)
     });
