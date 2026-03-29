@@ -1,7 +1,9 @@
-import { useEffect } from 'react';
-import { View, Text, ScrollView } from 'react-native';
+import { useEffect, useRef, useCallback, useMemo, forwardRef } from 'react';
+import { View, Text, ScrollView, Pressable } from 'react-native';
 import { router } from 'expo-router';
-import { textPresets } from '../../theme/typography';
+import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
+import { ChevronUp } from 'lucide-react-native';
+import { textPresets, fonts } from '../../theme/typography';
 import { colors } from '../../theme/colors';
 import { formatTime, isToday } from '../../lib/utils';
 import { useAuthStore } from '../../stores/authStore';
@@ -90,6 +92,173 @@ function SidebarContent() {
   );
 }
 
+const TodayBottomSheet = forwardRef<BottomSheet>(function TodayBottomSheet(_props, ref) {
+  const events = useScheduleStore((s) => s.events);
+  const tasks = useTasksStore((s) => s.tasks);
+  const toggleTask = useTasksStore((s) => s.toggleTask);
+  const streak = useGamificationStore((s) => s.streak);
+  const todayXP = useGamificationStore((s) => s.todayXP);
+  const dailyGoal = useGamificationStore((s) => s.dailyGoal);
+
+  const now = new Date();
+
+  // Next upcoming events today
+  const upcomingEvents = useMemo(() => {
+    return events
+      .filter((e) => {
+        const start = new Date(e.start_time);
+        return isToday(start) && start > now;
+      })
+      .slice(0, 3);
+  }, [events]);
+
+  // Top 3 undone tasks due today
+  const todayTasks = useMemo(() => {
+    const today = now.toISOString().split('T')[0];
+    return tasks
+      .filter((t) => !t.is_done && t.due_date && t.due_date.split('T')[0] === today)
+      .slice(0, 3);
+  }, [tasks]);
+
+  // If no today tasks, show next 3 undone
+  const displayTasks = todayTasks.length > 0 ? todayTasks : tasks.filter((t) => !t.is_done).slice(0, 3);
+
+  const xpProgress = dailyGoal > 0 ? Math.min(todayXP / dailyGoal, 1) : 0;
+
+  const snapPoints = useMemo(() => ['45%', '70%'], []);
+
+  return (
+    <BottomSheet
+      ref={ref}
+      index={-1}
+      snapPoints={snapPoints}
+      enablePanDownToClose
+      backgroundStyle={{ backgroundColor: colors.bg, borderWidth: 1, borderColor: colors.border }}
+      handleIndicatorStyle={{ backgroundColor: colors.borderSoft, width: 40 }}
+    >
+      <BottomSheetView style={{ flex: 1, paddingHorizontal: 24 }}>
+        <KText style={{ fontFamily: fonts.serif.bold, fontSize: 18, color: colors.ink, marginBottom: 16, letterSpacing: -0.3 }}>
+          Aujourd'hui
+        </KText>
+
+        {/* Streak + XP */}
+        <View
+          style={{
+            borderWidth: 1,
+            borderColor: colors.border,
+            borderRadius: 12,
+            padding: 14,
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            marginBottom: 16,
+          }}
+        >
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+            <KText style={{ fontSize: 18 }}>{'\uD83D\uDD25'}</KText>
+            <KText style={{ fontFamily: fonts.serif.bold, fontSize: 20, color: colors.ink }}>
+              {streak.current_streak}
+            </KText>
+            <KText style={{ fontFamily: fonts.sans.light, fontSize: 11, color: colors.inkSoft }}>
+              jours
+            </KText>
+          </View>
+          <View style={{ flex: 1, marginLeft: 20 }}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 4 }}>
+              <KText style={{ fontFamily: fonts.sans.medium, fontSize: 9, color: colors.inkSoft, letterSpacing: 0.4 }}>
+                XP
+              </KText>
+              <KText style={{ fontFamily: fonts.sans.medium, fontSize: 9, color: colors.ink }}>
+                {todayXP}/{dailyGoal}
+              </KText>
+            </View>
+            <View style={{ height: 3, backgroundColor: colors.borderSoft, borderRadius: 2 }}>
+              <View style={{ height: 3, backgroundColor: colors.blue, borderRadius: 2, width: `${Math.round(xpProgress * 100)}%` }} />
+            </View>
+          </View>
+        </View>
+
+        {/* Upcoming courses */}
+        <View style={{ marginBottom: 16 }}>
+          <KText style={{ fontFamily: fonts.sans.medium, fontSize: 9, color: colors.inkSoft, letterSpacing: 1.2, textTransform: 'uppercase', marginBottom: 8 }}>
+            Prochains cours
+          </KText>
+          {upcomingEvents.length === 0 ? (
+            <KText style={{ fontFamily: fonts.sans.light, fontSize: 11, color: colors.inkMuted }}>
+              Plus de cours aujourd'hui
+            </KText>
+          ) : (
+            upcomingEvents.map((event) => {
+              const time = formatTime(new Date(event.start_time));
+              return (
+                <Pressable
+                  key={event.id}
+                  onPress={() => router.push('/(main)/calendar')}
+                  style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    gap: 10,
+                    paddingVertical: 6,
+                    borderBottomWidth: 1,
+                    borderBottomColor: colors.border,
+                  }}
+                >
+                  <KText style={{ fontFamily: fonts.serif.bold, fontSize: 12, color: colors.ink }}>
+                    {time.hours}:{time.minutes}
+                  </KText>
+                  <KText style={{ fontFamily: fonts.sans.regular, fontSize: 12, color: colors.ink, flex: 1 }} numberOfLines={1}>
+                    {event.title}
+                  </KText>
+                </Pressable>
+              );
+            })
+          )}
+        </View>
+
+        {/* Tasks */}
+        <View style={{ marginBottom: 16 }}>
+          <KText style={{ fontFamily: fonts.sans.medium, fontSize: 9, color: colors.inkSoft, letterSpacing: 1.2, textTransform: 'uppercase', marginBottom: 8 }}>
+            A faire
+          </KText>
+          {displayTasks.length === 0 ? (
+            <KText style={{ fontFamily: fonts.sans.light, fontSize: 11, color: colors.inkMuted }}>
+              Aucune tache
+            </KText>
+          ) : (
+            displayTasks.map((task) => (
+              <View key={task.id} style={{ flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 5 }}>
+                <Checkbox checked={task.is_done} onToggle={() => toggleTask(task.id)} />
+                <KText
+                  style={{ fontFamily: fonts.sans.regular, fontSize: 12, color: colors.ink, flex: 1 }}
+                  numberOfLines={1}
+                >
+                  {task.title}
+                </KText>
+              </View>
+            ))
+          )}
+        </View>
+
+        {/* Quick revision button */}
+        <Pressable onPress={() => router.push('/(main)/revision')}>
+          <View
+            style={{
+              backgroundColor: colors.dark,
+              borderRadius: 14,
+              paddingVertical: 12,
+              alignItems: 'center',
+            }}
+          >
+            <KText style={{ fontFamily: fonts.sans.medium, fontSize: 12, color: colors.darkText }}>
+              Revision rapide
+            </KText>
+          </View>
+        </Pressable>
+      </BottomSheetView>
+    </BottomSheet>
+  );
+});
+
 export default function DashboardScreen() {
   const session = useAuthStore((s) => s.session);
   const fetchEvents = useScheduleStore((s) => s.fetchEvents);
@@ -98,6 +267,8 @@ export default function DashboardScreen() {
   const events = useScheduleStore((s) => s.events);
   const subjects = useSubjectsStore((s) => s.subjects);
   const setSidebar = useSidebar((s) => s.setSidebar);
+
+  const bottomSheetRef = useRef<BottomSheet>(null);
 
   useEffect(() => {
     const userId = session?.user?.id;
@@ -147,6 +318,10 @@ export default function DashboardScreen() {
   });
   const pastWeekEvents = weekEvents.filter((e) => new Date(e.end_time) < now);
   const weekProgress = weekEvents.length > 0 ? pastWeekEvents.length / weekEvents.length : 0;
+
+  const openTodaySheet = useCallback(() => {
+    bottomSheetRef.current?.snapToIndex(0);
+  }, []);
 
   return (
     <View style={{ flex: 1 }}>
@@ -265,6 +440,31 @@ export default function DashboardScreen() {
         <View style={{ height: 2, backgroundColor: colors.ink, borderRadius: 1, width: `${Math.round(weekProgress * 100)}%` }} />
       </View>
     </View>
+
+    {/* Floating "Aujourd'hui" pill button */}
+    <Pressable
+      onPress={openTodaySheet}
+      style={{
+        position: 'absolute',
+        bottom: 40,
+        right: 28,
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 6,
+        backgroundColor: colors.dark,
+        borderRadius: 24,
+        paddingHorizontal: 16,
+        paddingVertical: 10,
+      }}
+    >
+      <KText style={{ fontFamily: fonts.sans.medium, fontSize: 11, color: colors.darkText }}>
+        Aujourd'hui
+      </KText>
+      <ChevronUp size={14} strokeWidth={2} color={colors.darkText} />
+    </Pressable>
+
+    {/* Today Bottom Sheet */}
+    <TodayBottomSheet ref={bottomSheetRef} />
   </View>
   );
 }
