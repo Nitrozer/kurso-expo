@@ -20,7 +20,7 @@ export default function NotebooksScreen() {
   const [searchQuery, setSearchQuery] = useState('');
   const router = useRouter();
   const session = useAuthStore((s) => s.session);
-  const { notebooks, pages, fetchNotebooks, fetchPages, addNotebook } = useNotebooksStore();
+  const { notebooks, pages, fetchNotebooks, fetchPages, addNotebook, updateNotebook, deleteNotebook } = useNotebooksStore();
   const { notes, fetchNotes, addNote } = useNotesStore();
   const { subjects, getSubject } = useSubjectsStore();
 
@@ -126,6 +126,9 @@ export default function NotebooksScreen() {
                   pageCount={(pages[nb.id] ?? []).length}
                   subjectName={nb.subject_id ? getSubject(nb.subject_id)?.name : undefined}
                   onPress={() => router.push(`/notebooks/${nb.id}` as never)}
+                  onRename={(id, newTitle) => updateNotebook(id, { title: newTitle })}
+                  onChangeColor={(id, newColor) => updateNotebook(id, { cover_color: newColor })}
+                  onDelete={(id) => deleteNotebook(id)}
                 />
               </View>
             ))}

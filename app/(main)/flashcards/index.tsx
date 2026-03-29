@@ -1,4 +1,4 @@
-import { View, ScrollView, Pressable, Alert, TextInput } from 'react-native';
+import { View, ScrollView, Pressable, Alert, TextInput, Platform } from 'react-native';
 import { useEffect, useState } from 'react';
 import { useFlashcardsStore } from '../../../stores/flashcardsStore';
 import { useSubjectsStore } from '../../../stores/subjectsStore';
@@ -10,7 +10,7 @@ import { fonts } from '../../../theme/typography';
 import { Plus } from 'lucide-react-native';
 
 export default function FlashcardsScreen() {
-  const { decks, cards, fetchDecks, addDeck } = useFlashcardsStore();
+  const { decks, cards, fetchDecks, addDeck, updateDeck, deleteDeck } = useFlashcardsStore();
   const { subjects } = useSubjectsStore();
   const session = useAuthStore((s) => s.session);
   const [newDeckTitle, setNewDeckTitle] = useState('');
@@ -71,6 +71,47 @@ export default function FlashcardsScreen() {
             deck={deck}
             cards={cards.get(deck.id) ?? []}
             subjectName={deck.subject_id ? subjects.find((s) => s.id === deck.subject_id)?.name : undefined}
+            onLongPress={() => {
+              Alert.alert(
+                deck.title,
+                '',
+                [
+                  {
+                    text: 'Renommer',
+                    onPress: () => {
+                      if (Platform.OS === 'ios') {
+                        Alert.prompt(
+                          'Renommer le deck',
+                          '',
+                          (newTitle) => {
+                            if (newTitle && newTitle.trim()) {
+                              updateDeck(deck.id, { title: newTitle.trim() });
+                            }
+                          },
+                          'plain-text',
+                          deck.title,
+                        );
+                      }
+                    },
+                  },
+                  {
+                    text: 'Supprimer',
+                    style: 'destructive',
+                    onPress: () => {
+                      Alert.alert(
+                        'Supprimer le deck',
+                        `Supprimer "${deck.title}" et toutes ses cartes ?`,
+                        [
+                          { text: 'Annuler', style: 'cancel' },
+                          { text: 'Supprimer', style: 'destructive', onPress: () => deleteDeck(deck.id) },
+                        ],
+                      );
+                    },
+                  },
+                  { text: 'Annuler', style: 'cancel' },
+                ],
+              );
+            }}
           />
         ))}
       </View>

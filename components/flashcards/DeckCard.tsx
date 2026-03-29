@@ -10,15 +10,16 @@ type Props = {
   deck: Deck;
   cards: Flashcard[];
   subjectName?: string;
+  onLongPress?: () => void;
 };
 
-export function DeckCard({ deck, cards, subjectName }: Props) {
+export function DeckCard({ deck, cards, subjectName, onLongPress }: Props) {
   const router = useRouter();
   const now = new Date().toISOString();
   const dueCount = cards.filter((c) => !c.next_review || c.next_review <= now).length;
 
   return (
-    <Card onPress={() => router.push(`/flashcards/${deck.id}`)}>
+    <Card onPress={() => router.push(`/flashcards/${deck.id}`)} onLongPress={onLongPress}>
       <View className="flex-row items-center justify-between">
         <View className="flex-1">
           <KText

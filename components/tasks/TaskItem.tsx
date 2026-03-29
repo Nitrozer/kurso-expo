@@ -1,9 +1,10 @@
 import { useEffect } from 'react';
-import { View, Pressable, Alert } from 'react-native';
+import { View, Pressable, Alert, Platform } from 'react-native';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { Checkbox } from '../ui/Checkbox';
 import { KText } from '../ui/Text';
 import { colors } from '../../theme/colors';
+import { useTasksStore } from '../../stores/tasksStore';
 import type { Task, Subject } from '../../types';
 
 type Props = {
@@ -14,6 +15,7 @@ type Props = {
 };
 
 export function TaskItem({ task, onToggle, onDelete, subject }: Props) {
+  const updateTask = useTasksStore((s) => s.updateTask);
   const strikeWidth = useSharedValue(task.is_done ? 1 : 0);
 
   useEffect(() => {
@@ -24,13 +26,76 @@ export function TaskItem({ task, onToggle, onDelete, subject }: Props) {
     width: `${strikeWidth.value * 100}%`,
   }));
 
+  const handleEditTitle = () => {
+    if (Platform.OS === 'ios') {
+      Alert.prompt(
+        'Modifier la tâche',
+        '',
+        (newTitle) => {
+          if (newTitle && newTitle.trim()) {
+            updateTask(task.id, { title: newTitle.trim() });
+          }
+        },
+        'plain-text',
+        task.title,
+      );
+    } else {
+      // Android fallback — use Alert with info
+      Alert.alert('Modifier la tâche', 'Utilisez le menu (appui long) pour modifier cette tâche.');
+    }
+  };
+
+  const handleEditDueDate = () => {
+    if (Platform.OS === 'ios') {
+      Alert.prompt(
+        'Changer la date',
+        'Format : AAAA-MM-JJ HH:MM',
+        (newDate) => {
+          if (newDate && newDate.trim()) {
+            const parsed = new Date(newDate.trim().replace(' ', 'T'));
+            if (!isNaN(parsed.getTime())) {
+              updateTask(task.id, { due_date: parsed.toISOString() });
+            } else {
+              Alert.alert('Erreur', 'Format de date invalide.');
+            }
+          }
+        },
+        'plain-text',
+        task.due_date
+          ? new Date(task.due_date).toISOString().slice(0, 16).replace('T', ' ')
+          : '',
+      );
+    }
+  };
+
   const handleLongPress = () => {
     Alert.alert(
-      'Supprimer la tache',
-      `Supprimer "${task.title}" ?`,
+      task.title,
+      '',
       [
+        {
+          text: 'Modifier',
+          onPress: handleEditTitle,
+        },
+        {
+          text: 'Changer la date',
+          onPress: handleEditDueDate,
+        },
+        {
+          text: 'Supprimer',
+          style: 'destructive',
+          onPress: () => {
+            Alert.alert(
+              'Supprimer la tâche',
+              `Supprimer "${task.title}" ?`,
+              [
+                { text: 'Annuler', style: 'cancel' },
+                { text: 'Supprimer', style: 'destructive', onPress: () => onDelete(task.id) },
+              ],
+            );
+          },
+        },
         { text: 'Annuler', style: 'cancel' },
-        { text: 'Supprimer', style: 'destructive', onPress: () => onDelete(task.id) },
       ],
     );
   };
@@ -51,7 +116,7 @@ export function TaskItem({ task, onToggle, onDelete, subject }: Props) {
     >
       <Checkbox checked={task.is_done} onToggle={() => onToggle(task.id)} />
 
-      <View style={{ flex: 1 }}>
+      <Pressable onPress={handleEditTitle} style={{ flex: 1 }}>
         <View style={{ position: 'relative', justifyContent: 'center' }}>
           <KText
             preset="taskText"
@@ -90,7 +155,7 @@ export function TaskItem({ task, onToggle, onDelete, subject }: Props) {
               : new Date(task.due_date).toLocaleDateString('fr-FR', { weekday: 'long', hour: '2-digit', minute: '2-digit' })}
           </KText>
         )}
-      </View>
+      </Pressable>
 
       {subject && (
         <View

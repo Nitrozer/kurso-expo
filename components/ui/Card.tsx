@@ -3,9 +3,9 @@ import Animated, { useAnimatedStyle, useSharedValue, withTiming, interpolateColo
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
-type Props = ViewProps & { onPress?: () => void; inverted?: boolean };
+type Props = ViewProps & { onPress?: () => void; onLongPress?: () => void; inverted?: boolean };
 
-export function Card({ onPress, inverted, className, children, ...props }: Props) {
+export function Card({ onPress, onLongPress, inverted, className, children, ...props }: Props) {
   const pressed = useSharedValue(0);
   const animatedStyle = useAnimatedStyle(() => ({
     borderColor: interpolateColor(pressed.value, [0, 1], ['#E8E2DA', '#111111']),
@@ -18,6 +18,7 @@ export function Card({ onPress, inverted, className, children, ...props }: Props
         onPressIn={() => { pressed.value = withTiming(1, { duration: 150 }); }}
         onPressOut={() => { pressed.value = withTiming(0, { duration: 150 }); }}
         onPress={onPress}
+        onLongPress={onLongPress}
         className={`border rounded-xl p-lg ${bg} ${className ?? ''}`}
         style={[animatedStyle]}
         {...props}

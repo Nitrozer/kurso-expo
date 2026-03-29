@@ -1,7 +1,9 @@
 import { useMemo } from 'react';
-import { View, ScrollView } from 'react-native';
+import { View, ScrollView, Pressable, Alert } from 'react-native';
+import { useRouter } from 'expo-router';
 import { KText } from '../ui/Text';
 import { colors } from '../../theme/colors';
+import { useScheduleStore } from '../../stores/scheduleStore';
 import type { ScheduleEvent } from '../../types';
 
 type Props = {
@@ -20,11 +22,43 @@ function toDateKey(d: Date): string {
 export function DayView({ events, date }: Props) {
   const dateKey = toDateKey(date);
   const totalHours = HOUR_END - HOUR_START;
+  const router = useRouter();
+  const deleteEvent = useScheduleStore((s) => s.deleteEvent);
 
   const dayEvents = useMemo(
     () => events.filter((e) => e.start_time.split('T')[0] === dateKey),
     [events, dateKey],
   );
+
+  const handleEventPress = (evt: ScheduleEvent) => {
+    Alert.alert(
+      evt.title,
+      evt.location ? `Lieu : ${evt.location}` : '',
+      [
+        {
+          text: 'Modifier',
+          onPress: () => {
+            router.push(`/(modals)/new-event?eventId=${evt.id}` as never);
+          },
+        },
+        {
+          text: 'Supprimer',
+          style: 'destructive',
+          onPress: () => {
+            Alert.alert(
+              'Supprimer l\'événement',
+              `Supprimer "${evt.title}" ?`,
+              [
+                { text: 'Annuler', style: 'cancel' },
+                { text: 'Supprimer', style: 'destructive', onPress: () => deleteEvent(evt.id) },
+              ],
+            );
+          },
+        },
+        { text: 'Annuler', style: 'cancel' },
+      ],
+    );
+  };
 
   return (
     <ScrollView showsVerticalScrollIndicator={false}>
@@ -61,8 +95,9 @@ export function DayView({ events, date }: Props) {
           const height = Math.max(((endMinutes - startMinutes) / 60) * HOUR_HEIGHT, 24);
 
           return (
-            <View
+            <Pressable
               key={evt.id}
+              onPress={() => handleEventPress(evt)}
               style={{
                 position: 'absolute',
                 top,
@@ -90,7 +125,7 @@ export function DayView({ events, date }: Props) {
                 {' - '}
                 {String(end.getHours()).padStart(2, '0')}:{String(end.getMinutes()).padStart(2, '0')}
               </KText>
-            </View>
+            </Pressable>
           );
         })}
       </View>
