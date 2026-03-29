@@ -1,7 +1,7 @@
-import { View, ScrollView, Pressable, Alert } from 'react-native';
+import { View, ScrollView, Pressable, Alert, TextInput } from 'react-native';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'expo-router';
-import { Plus } from 'lucide-react-native';
+import { Plus, Search } from 'lucide-react-native';
 import { useNotebooksStore } from '../../../stores/notebooksStore';
 import { useNotesStore } from '../../../stores/notesStore';
 import { useSubjectsStore } from '../../../stores/subjectsStore';
@@ -16,6 +16,7 @@ type Tab = 'cahiers' | 'notes';
 export default function NotebooksScreen() {
   const [activeTab, setActiveTab] = useState<Tab>('cahiers');
   const [subjectFilter, setSubjectFilter] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
   const router = useRouter();
   const session = useAuthStore((s) => s.session);
   const { notebooks, pages, fetchNotebooks, fetchPages, addNotebook } = useNotebooksStore();
@@ -29,9 +30,9 @@ export default function NotebooksScreen() {
     }
   }, [session]);
 
-  const filteredNotes = subjectFilter
-    ? notes.filter((n) => n.subject_id === subjectFilter)
-    : notes;
+  const filteredNotes = notes
+    .filter((n) => !subjectFilter || n.subject_id === subjectFilter)
+    .filter((n) => !searchQuery || n.title.toLowerCase().includes(searchQuery.toLowerCase()) || (n.content_preview ?? '').toLowerCase().includes(searchQuery.toLowerCase()));
 
   const handleAddNotebook = async () => {
     if (!session?.user) return;
@@ -128,6 +129,34 @@ export default function NotebooksScreen() {
 
         {activeTab === 'notes' && (
           <>
+            <View
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                paddingHorizontal: 16,
+                paddingVertical: 12,
+                borderWidth: 1,
+                borderColor: '#E0D8CE',
+                borderRadius: 14,
+                marginBottom: 16,
+                backgroundColor: '#FDF9F3',
+              }}
+            >
+              <Search size={18} color="#5F5E5E" style={{ marginRight: 12 }} />
+              <TextInput
+                value={searchQuery}
+                onChangeText={setSearchQuery}
+                placeholder="Chercher dans vos notes..."
+                placeholderTextColor="rgba(95,94,94,0.5)"
+                style={{
+                  flex: 1,
+                  fontFamily: 'DMSans_400Regular',
+                  fontSize: 14,
+                  color: '#111111',
+                }}
+              />
+            </View>
+
             {/* Subject filter chips */}
             <ScrollView
               horizontal
