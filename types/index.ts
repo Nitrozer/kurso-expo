@@ -42,6 +42,7 @@ export type Note = {
   id: string;
   user_id: string;
   subject_id: string | null;
+  event_id: string | null;
   title: string;
   content: Record<string, unknown> | null;
   content_preview: string | null;
