@@ -2,7 +2,7 @@ import { View, Pressable, Text } from 'react-native';
 import { usePathname, router } from 'expo-router';
 import {
   House, Calendar, BookOpen, CheckSquare, BarChart3,
-  Timer, Brain, Smile, Calculator, Settings,
+  Brain, Calculator, Settings,
 } from 'lucide-react-native';
 import { colors } from '../../theme/colors';
 import { useAuthStore } from '../../stores/authStore';
@@ -16,9 +16,7 @@ const mainItems = [
 ];
 
 const extraItems = [
-  { icon: Timer, path: '/(main)/pomodoro', label: 'Pomodoro' },
   { icon: Brain, path: '/(main)/flashcards', label: 'Flashcards' },
-  { icon: Smile, path: '/(main)/mood', label: 'Humeur' },
   { icon: Calculator, path: '/(main)/calculator', label: 'Calculatrice' },
 ];
 

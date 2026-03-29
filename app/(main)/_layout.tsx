@@ -18,8 +18,6 @@ import { useNotesStore } from '../../stores/notesStore';
 import { useSubjectsStore } from '../../stores/subjectsStore';
 import { useNotebooksStore } from '../../stores/notebooksStore';
 import { useExamsStore } from '../../stores/examsStore';
-import { useMoodStore } from '../../stores/moodStore';
-import { usePomodoroStore } from '../../stores/pomodoroStore';
 import { useFlashcardsStore } from '../../stores/flashcardsStore';
 
 function MainLayoutInner() {
@@ -80,8 +78,6 @@ function MainLayoutInner() {
       useNotesStore.getState().fetchNotes(userId),
       useNotebooksStore.getState().fetchNotebooks(userId),
       useExamsStore.getState().fetchExams(userId),
-      useMoodStore.getState().fetchMoods(userId),
-      usePomodoroStore.getState().fetchSessions(userId),
       useFlashcardsStore.getState().fetchDecks(userId),
     ]).catch(() => {
       // Silently handle initial fetch errors (e.g. offline)
