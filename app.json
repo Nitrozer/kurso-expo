@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "kurso-expo",
-    "slug": "kurso-expo",
+    "slug": "kurso",
     "version": "1.0.0",
     "orientation": "default",
     "icon": "./assets/icon.png",
@@ -36,9 +36,9 @@
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "f1d6fa4b-f95f-4755-8692-29fb83e2c168"
+        "projectId": "9e9848cb-661b-4065-99a9-e5b3ad96ac32"
       }
     },
-    "owner": "nitrozero"
+    "owner": "nitrozeros-organization"
   }
 }
