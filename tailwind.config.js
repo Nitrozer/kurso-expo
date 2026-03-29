@@ -9,6 +9,7 @@ module.exports = {
     extend: {
       colors: {
         parchment:       '#F7F3ED',
+        'surface-bright': '#FDF9F3',
         'surface-alt':   '#EDE8E0',
         ink:             '#111111',
         'ink-soft':      '#8A8278',
