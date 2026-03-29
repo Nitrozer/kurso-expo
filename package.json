@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "main": "expo-router/entry",
   "scripts": {
+    "postinstall": "bash scripts/patch-pencilkit.sh",
     "start": "expo start",
     "android": "expo run:android",
     "ios": "expo run:ios",
@@ -25,7 +26,7 @@
     "expo-font": "~55.0.4",
     "expo-image-picker": "~55.0.14",
     "expo-linking": "~55.0.8",
-    "expo-pencilkit-ui": "file:./packages/expo-pencilkit-ui",
+    "expo-pencilkit-ui": "^1.0.4",
     "expo-print": "~55.0.9",
     "expo-router": "~55.0.7",
     "expo-sharing": "~55.0.14",
