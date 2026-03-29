@@ -1,5 +1,6 @@
-import { View } from 'react-native';
+import { View, useWindowDimensions } from 'react-native';
 import { Rail } from './Rail';
+import { BottomTabBar } from './BottomTabBar';
 
 type Props = {
   children: React.ReactNode;
@@ -7,17 +8,21 @@ type Props = {
 };
 
 export function ThreeColumnLayout({ children, sidebar }: Props) {
+  const { width } = useWindowDimensions();
+  const isTablet = width >= 768;
+
   return (
     <View className="flex-1 flex-row bg-parchment">
-      <Rail />
-      <View className="flex-1 border-l border-border">
+      {isTablet && <Rail />}
+      <View className="flex-1 border-l border-border" style={!isTablet ? { borderLeftWidth: 0 } : undefined}>
         {children}
       </View>
-      {sidebar && (
+      {isTablet && sidebar && (
         <View className="w-[280px] border-l border-border">
           {sidebar}
         </View>
       )}
+      <BottomTabBar />
     </View>
   );
 }
