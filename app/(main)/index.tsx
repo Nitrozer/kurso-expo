@@ -243,23 +243,18 @@ export default function DashboardScreen() {
         borderColor: colors.border,
         borderRadius: 14,
         padding: 16,
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 16,
       }}
     >
-      <View style={{ flex: 1 }}>
-        <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 }}>
-          <Text style={{ fontFamily: 'DMSans_500Medium', fontSize: 9, color: colors.ink, textTransform: 'uppercase', letterSpacing: 0.5 }}>
-            Progression Journee
-          </Text>
-          <Text style={{ fontFamily: 'DMSans_500Medium', fontSize: 9, color: colors.ink }}>
-            {Math.round(weekProgress * 100)}%
-          </Text>
-        </View>
-        <View style={{ height: 2, backgroundColor: '#E0D8CE', borderRadius: 1 }}>
-          <View style={{ height: 2, backgroundColor: colors.ink, borderRadius: 1, width: `${Math.round(weekProgress * 100)}%` }} />
-        </View>
+      <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 }}>
+        <Text style={{ fontFamily: 'DMSans_500Medium', fontSize: 9, color: colors.ink, textTransform: 'uppercase', letterSpacing: 0.5 }}>
+          Progression Journee
+        </Text>
+        <Text style={{ fontFamily: 'DMSans_500Medium', fontSize: 9, color: colors.ink }}>
+          {Math.round(weekProgress * 100)}%
+        </Text>
+      </View>
+      <View style={{ height: 2, backgroundColor: '#E0D8CE', borderRadius: 1 }}>
+        <View style={{ height: 2, backgroundColor: colors.ink, borderRadius: 1, width: `${Math.round(weekProgress * 100)}%` }} />
       </View>
     </View>
   </View>
