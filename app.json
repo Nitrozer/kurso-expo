@@ -2,6 +2,7 @@
   "expo": {
     "name": "kurso-expo",
     "slug": "kurso",
+    "scheme": "kurso",
     "version": "1.0.0",
     "orientation": "default",
     "icon": "./assets/icon.png",
