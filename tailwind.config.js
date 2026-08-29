@@ -5,6 +5,13 @@ module.exports = {
     './components/**/*.{js,jsx,ts,tsx}',
   ],
   presets: [require('nativewind/preset')],
+  // Requis sur web. Avec la valeur par defaut 'media', le runtime NativeWind
+  // (react-native-css-interop) initialise son color scheme via un
+  // MutationObserver qui appelle colorScheme.set() sans condition, alors que
+  // ce setter leve justement une exception quand darkMode vaut 'media'.
+  // L'app plante au chargement. Le theme lui-meme ne depend pas de ce reglage :
+  // il passe par useColors(), et il ne reste aucune variante dark: dans le code.
+  darkMode: 'class',
   theme: {
     extend: {
       // Pas de tokens de couleur ici : la couleur vient exclusivement de
