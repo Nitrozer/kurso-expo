@@ -1,40 +1,42 @@
+*[Version française](README.fr.md)*
+
 # Kurso
 
-Application de gestion de vie étudiante pour iPad. Emploi du temps, prise de notes manuscrites au stylet, tâches, flashcards et suivi de révisions, le tout synchronisé via Supabase.
+A student life manager for iPad. Timetable, handwritten notes with the Apple Pencil, tasks, flashcards and revision tracking, all synced through Supabase.
 
-L'app est pensée iPad d'abord — layout trois colonnes (rail de navigation, zone principale, sidebar contextuelle) — avec un repli sur une barre d'onglets en bas sous 768px de large.
+The app is built iPad-first around a three-column layout — navigation rail, main area, contextual sidebar — and falls back to a bottom tab bar below 768px.
 
-## Fonctionnalités
+## Features
 
-**Emploi du temps** — Calendrier en vue mois / semaine / jour, import de fichier `.ics`, examens avec compte à rebours, timeline du jour sur le dashboard avec l'état des cours (passé, en cours, à venir).
+**Timetable** — Month, week and day calendar views, `.ics` file import, exams with a countdown, and a daily timeline on the dashboard that tracks which class has passed, which is running and which comes next.
 
-**Cahiers** — Éditeur de dessin s'appuyant sur PencilKit natif : le stylet écrit, les doigts font défiler et zooment. Modèles de page (vierge, ligné, quadrillé, points) avec marge et perforations. Import d'une photo en fond de page, export PDF, notes vocales rattachées à une page.
+**Notebooks** — A drawing editor built on native PencilKit: the pencil writes, fingers pan and zoom. Page templates (blank, ruled, grid, dotted) with a margin and hole punches. Photo import as a page background, PDF export, and voice notes attached to a page.
 
-**Notes** — Éditeur texte avec titre, matière, tags, et lien optionnel vers un cours de l'emploi du temps. Recherche et filtres par matière ou par tag.
+**Notes** — Text editor with title, subject, tags and an optional link to a class in the timetable. Search and filtering by subject or tag.
 
-**Tâches** — Regroupées par échéance (aujourd'hui, cette semaine, plus tard, terminées), avec matière et date limite.
+**Tasks** — Grouped by due date (today, this week, later, done), with subject and deadline.
 
-**Flashcards** — Decks par matière, révision avec algorithme SM-2 (facteur de facilité, intervalle, prochaine révision).
+**Flashcards** — Decks per subject, reviewed with the SM-2 algorithm (ease factor, interval, next review date).
 
-**Mode révision** — Enchaîne les notes puis les flashcards d'une matière donnée en une seule session, avec barre de progression.
+**Revision mode** — Runs through a subject's notes and then its flashcards in a single session, with a progress bar.
 
-**Gamification** — XP par action, streak quotidien avec jours de grâce, badges de palier.
+**Gamification** — XP per action, a daily streak with freeze days, and milestone badges.
 
-**Divers** — Statistiques hebdomadaires, calculatrice scientifique, thème sombre, export de toutes les données en JSON.
+**Also** — Weekly statistics, a scientific calculator, a dark theme, and a full JSON export of your data.
 
 ## Stack
 
-- Expo SDK 55 (workflow prebuild) et React Native 0.83
-- Expo Router pour la navigation basée sur les fichiers
-- Zustand — un store par domaine métier
-- NativeWind 4, doublé d'un dossier `theme/` pour les couleurs et présets typographiques utilisés hors classes Tailwind
-- Supabase — auth, PostgreSQL avec RLS, Realtime, Storage
-- `expo-pencilkit-ui` pour le canvas manuscrit, `expo-audio` pour les notes vocales, `expo-print` pour l'export PDF
-- Fraunces et DM Sans via `@expo-google-fonts`
+- Expo SDK 55 (prebuild workflow) and React Native 0.83
+- Expo Router for file-based navigation
+- Zustand — one store per domain
+- NativeWind 4, backed by a `theme/` directory holding the colors and type presets used outside Tailwind classes
+- Supabase — auth, PostgreSQL with RLS, Realtime, Storage
+- `expo-pencilkit-ui` for the handwriting canvas, `expo-audio` for voice notes, `expo-print` for PDF export
+- Fraunces and DM Sans via `@expo-google-fonts`
 
-## Installation
+## Getting started
 
-Il faut un build de développement : l'app utilise des modules natifs (PencilKit, MMKV, Reanimated), donc **Expo Go ne fonctionne pas**.
+You need a development build. The app relies on native modules (PencilKit, MMKV, Reanimated), so **Expo Go will not work**.
 
 ```bash
 git clone https://github.com/Nitrozer/kurso-expo.git
@@ -42,79 +44,79 @@ cd kurso-expo
 npm install
 ```
 
-Le `postinstall` applique un patch à `expo-pencilkit-ui` (voir [Patch PencilKit](#patch-pencilkit) plus bas).
+The `postinstall` step patches `expo-pencilkit-ui` — see [The PencilKit patch](#the-pencilkit-patch) below.
 
 ### Supabase
 
-Créer un projet sur [supabase.com](https://supabase.com), puis appliquer les migrations :
+Create a project on [supabase.com](https://supabase.com), then apply the migrations:
 
 ```bash
-supabase link --project-ref <votre-ref>
+supabase link --project-ref <your-ref>
 supabase db push
 ```
 
-Créer ensuite un bucket Storage nommé `voice-notes` pour les enregistrements audio.
+Then create a Storage bucket named `voice-notes` for the audio recordings.
 
-### Variables d'environnement
+### Environment variables
 
-À la racine, dans un fichier `.env` :
+In a `.env` file at the root:
 
 ```
-EXPO_PUBLIC_SUPABASE_URL=https://<votre-ref>.supabase.co
-EXPO_PUBLIC_SUPABASE_ANON_KEY=<votre-clé-anon>
+EXPO_PUBLIC_SUPABASE_URL=https://<your-ref>.supabase.co
+EXPO_PUBLIC_SUPABASE_ANON_KEY=<your-anon-key>
 ```
 
-### Lancer
+### Running it
 
-Les dossiers `ios/` et `android/` ne sont pas versionnés, il faut les générer :
+The `ios/` and `android/` directories are not checked in, so generate them first:
 
 ```bash
 npx expo prebuild
-npm run ios      # ou: npm run android
+npm run ios      # or: npm run android
 ```
 
-## Structure
+## Project structure
 
 ```
-app/                  écrans (expo-router)
-  (auth)/             connexion, inscription
-  (main)/             layout 3 colonnes + écrans principaux
-  (modals)/           nouvelle tâche, nouvel événement, import ICS, réglages
-components/           composants par domaine (calendar, notebooks, notes, tasks, ui…)
-stores/               stores Zustand, un par domaine
-lib/                  client Supabase, auth, parser ICS, export PDF, helpers
-theme/                couleurs, typographie, espacements
-supabase/migrations/  schéma SQL
+app/                  screens (expo-router)
+  (auth)/             sign in, sign up
+  (main)/             three-column layout + main screens
+  (modals)/           new task, new event, ICS import, settings
+components/           components by domain (calendar, notebooks, notes, tasks, ui…)
+stores/               Zustand stores, one per domain
+lib/                  Supabase client, auth, ICS parser, PDF export, helpers
+theme/                colors, typography, spacing
+supabase/migrations/  SQL schema
 ```
 
-Chaque store parle directement à Supabase et met à jour son état local. Il n'y a pas de couche d'abstraction intermédiaire : c'est volontaire, l'app n'a qu'une source de vérité.
+Each store talks to Supabase directly and updates its own local state. There is no repository layer in between — that is deliberate, since the app has a single source of truth.
 
-Les écrans alimentent la sidebar via un store dédié (`SidebarContext`), ce qui permet à chaque écran de décider de son contenu contextuel sans que le layout ait à les connaître.
+Screens push their own sidebar content through a dedicated store (`SidebarContext`), which lets each screen decide what belongs there without the layout needing to know about any of them.
 
-## Base de données
+## Database
 
-Onze tables principales : `profiles`, `subjects`, `schedule_events`, `tasks`, `notes`, `notebooks`, `notebook_pages`, `exams`, `decks`, `flashcards`, `voice_notes`, plus trois tables de gamification (`daily_activity`, `streaks`, `badges`).
+Eleven main tables: `profiles`, `subjects`, `schedule_events`, `tasks`, `notes`, `notebooks`, `notebook_pages`, `exams`, `decks`, `flashcards`, `voice_notes`, plus three for gamification (`daily_activity`, `streaks`, `badges`).
 
-RLS est activé partout avec une policy `auth.uid() = user_id`. Un trigger sur `auth.users` crée automatiquement le profil à l'inscription.
+RLS is enabled everywhere with an `auth.uid() = user_id` policy. A trigger on `auth.users` creates the profile automatically on sign-up.
 
-La migration initiale crée également `pomodoro_sessions` et `mood_entries`, vestiges de deux fonctionnalités retirées depuis. Elles ne sont plus utilisées par l'app.
+The initial migration also creates `pomodoro_sessions` and `mood_entries`, left over from two features that have since been removed. Nothing in the app uses them.
 
-Le layout principal souscrit aux changements Realtime sur `tasks`, `schedule_events`, `notes`, `subjects` et `exams` pour la synchronisation multi-appareils, avec un rafraîchissement de secours toutes les 5 minutes.
+The main layout subscribes to Realtime changes on `tasks`, `schedule_events`, `notes`, `subjects` and `exams` for multi-device sync, with a fallback refresh every 5 minutes.
 
-## Patch PencilKit
+## The PencilKit patch
 
-`expo-pencilkit-ui` expose le canvas mais pas les réglages nécessaires à un comportement type GoodNotes. `scripts/patch-pencilkit.sh` modifie le fichier Swift du module après installation pour :
+`expo-pencilkit-ui` exposes the canvas but not the settings needed for GoodNotes-like behaviour. `scripts/patch-pencilkit.sh` edits the module's Swift file after install to:
 
-- passer `drawingPolicy` à `.pencilOnly` — sinon le doigt dessine au lieu de faire défiler
-- monter le zoom maximum à 5x
-- rendre le canvas transparent, pour que le modèle de page (lignes, quadrillage, marge) reste visible dessous
+- set `drawingPolicy` to `.pencilOnly` — otherwise a finger draws instead of scrolling
+- raise the maximum zoom to 5x
+- make the canvas transparent, so the page template (lines, grid, margin) stays visible underneath
 
-Le script restaure aussi les fichiers de build du paquet, que npm supprime parfois.
+The script also restores the package's build files, which npm sometimes strips.
 
-## Limitations connues
+## Known limitations
 
-- **Les cahiers sont iOS uniquement.** PencilKit est une API Apple ; l'éditeur de dessin ne fonctionne pas sur Android.
-- **Les notifications sont désactivées.** `lib/notifications.ts` ne contient que des stubs : la capability Push Notifications demande un compte Apple Developer payant. Les rappels d'examen et de devoir sont câblés et n'attendent que le retrait des stubs.
-- **Les cours récurrents ne sont pas déroulés.** La règle RRULE est bien stockée à l'import ICS, mais l'expansion côté client n'est pas faite : un cours hebdomadaire n'apparaît qu'une fois dans le calendrier.
-- **Le thème sombre est partiel.** Seuls le rail et le layout consomment `useColors()` ; la plupart des écrans importent encore la palette claire en dur.
-- **Le mode hors ligne est en lecture seule** et ne repose que sur le cache mémoire — il affiche un bandeau, mais les mutations ne sont pas mises en file d'attente.
+- **Notebooks are iOS-only.** PencilKit is an Apple API, so the drawing editor does not work on Android.
+- **Notifications are disabled.** `lib/notifications.ts` contains stubs only: the Push Notifications capability requires a paid Apple Developer account. Exam and task reminders are already wired up and only need the stubs removed.
+- **Recurring classes are not expanded.** The RRULE is stored correctly on ICS import, but it is never expanded client-side, so a weekly class shows up only once in the calendar.
+- **The dark theme is partial.** Only the rail and the layout consume `useColors()`; most screens still import the light palette directly.
+- **Offline mode is read-only** and backed by in-memory cache alone — it shows a banner, but mutations are not queued for replay.
