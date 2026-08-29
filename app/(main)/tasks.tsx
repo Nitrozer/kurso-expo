@@ -25,10 +25,8 @@ export default function TasksScreen() {
       await addTask({
         user_id: session.user.id,
         title: 'Nouvelle tache',
-        is_done: false,
         due_date: null,
         subject_id: null,
-        sort_order: 0,
       });
     } catch (e: any) {
       Alert.alert('Erreur', e.message);

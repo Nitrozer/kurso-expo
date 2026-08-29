@@ -89,9 +89,11 @@ export default function NotebooksScreen() {
       const note = await addNote({
         user_id: session.user.id,
         subject_id: null,
+        event_id: null,
         title: '',
         content: null,
         content_preview: null,
+        tags: [],
       });
       if (note) {
         router.push(`/notebooks/note/${note.id}` as never);
