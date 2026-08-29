@@ -1,5 +1,28 @@
+import * as Linking from 'expo-linking';
+import { Platform } from 'react-native';
 import { supabase } from './supabase';
 import type { Profile } from '../types';
+
+// URL vers laquelle Supabase renvoie apres le clic sur le lien de
+// reinitialisation. Sur web c'est une vraie route, sur natif le lien profond
+// kurso:// declare dans app.json.
+function resetRedirectUrl() {
+  return Platform.OS === 'web'
+    ? `${window.location.origin}/reset-password`
+    : Linking.createURL('/reset-password');
+}
+
+export async function requestPasswordReset(email: string) {
+  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: resetRedirectUrl(),
+  });
+  if (error) throw error;
+}
+
+export async function updatePassword(password: string) {
+  const { error } = await supabase.auth.updateUser({ password });
+  if (error) throw error;
+}
 
 export async function signUp(email: string, password: string, metadata?: { full_name: string; nickname: string; avatar_letter: string }) {
   const { data, error } = await supabase.auth.signUp({

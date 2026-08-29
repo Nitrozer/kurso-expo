@@ -36,6 +36,10 @@ export default function RootLayout() {
   });
 
   const [initialSession, setInitialSession] = useState<Session | null | undefined>(undefined);
+  // Le lien de reinitialisation ouvre une session valide. Sans ce drapeau, la
+  // navigation ci-dessous enverrait vers l'app au lieu de l'ecran de nouveau
+  // mot de passe, et le lien serait inutilisable.
+  const [isRecovering, setIsRecovering] = useState(false);
 
   const handleAuthChange = useCallback(async (session: Session | null) => {
     useAuthStore.getState().setSession(session);
@@ -54,8 +58,9 @@ export default function RootLayout() {
       setInitialSession(session);
     });
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       handleAuthChange(session);
+      if (event === 'PASSWORD_RECOVERY') setIsRecovering(true);
     });
 
     return () => subscription.unsubscribe();
@@ -67,12 +72,14 @@ export default function RootLayout() {
 
     SplashScreen.hideAsync();
 
-    if (initialSession) {
+    if (isRecovering) {
+      router.replace('/(auth)/reset-password');
+    } else if (initialSession) {
       router.replace('/(main)');
     } else {
       router.replace('/(auth)/login');
     }
-  }, [initialSession, fontsLoaded]);
+  }, [initialSession, fontsLoaded, isRecovering]);
 
   const themeMode = useThemeStore((s) => s.mode);
 

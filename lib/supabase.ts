@@ -1,3 +1,4 @@
+import { Platform } from 'react-native';
 import { createClient } from '@supabase/supabase-js';
 import { createStorage } from './storage';
 import 'react-native-url-polyfill/auto';
@@ -18,6 +19,9 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
     storage: storageAdapter,
     autoRefreshToken: true,
     persistSession: true,
-    detectSessionInUrl: false,
+    // Sur web, le lien de reinitialisation renvoie le jeton dans le fragment
+    // d'URL : sans ceci, supabase-js ne le lit pas et l'ecran de nouveau mot de
+    // passe n'a pas de session. Sur natif il n'y a pas d'URL a inspecter.
+    detectSessionInUrl: Platform.OS === 'web',
   },
 });

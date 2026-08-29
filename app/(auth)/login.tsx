@@ -151,38 +151,12 @@ export default function LoginScreen() {
           </Pressable>
 
           {/* Mot de passe oublie */}
-          <Pressable style={{ alignItems: 'center', marginBottom: 48 }}>
+          <Pressable
+            onPress={() => router.push('/(auth)/forgot-password')}
+            style={{ alignItems: 'center', marginBottom: 48 }}
+          >
             <Text style={{ fontFamily: 'DMSans_500Medium', fontSize: 14, color: colors.blue }}>
               Mot de passe oublie
-            </Text>
-          </Pressable>
-
-          {/* Divider */}
-          <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 48 }}>
-            <View style={{ flex: 1, height: 1, backgroundColor: colors.border }} />
-            <Text style={{ fontFamily: 'DMSans_500Medium', fontSize: 10, color: colors.inkGhost, letterSpacing: 2, textTransform: 'uppercase', marginHorizontal: 16 }}>
-              Ou
-            </Text>
-            <View style={{ flex: 1, height: 1, backgroundColor: colors.border }} />
-          </View>
-
-          {/* Google button */}
-          <Pressable
-            style={{
-              height: 56,
-              borderWidth: 1,
-              borderColor: colors.borderStrong,
-              borderRadius: 14,
-              flexDirection: 'row',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: 12,
-              backgroundColor: colors.bg,
-              marginBottom: 48,
-            }}
-          >
-            <Text style={{ fontFamily: 'DMSans_500Medium', fontSize: 14, color: colors.ink }}>
-              Continuer avec Google
             </Text>
           </Pressable>
 
