@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { View, TextInput, Pressable, Text, Alert, ScrollView } from 'react-native';
+import { showAlert } from '../../lib/alert';
+import { View, TextInput, Pressable, Text, ScrollView } from 'react-native';
 import { Link, router } from 'expo-router';
 import { signUp, createProfile } from '../../lib/auth';
 import { textPresets } from '../../theme/typography';
@@ -16,11 +17,11 @@ export default function RegisterScreen() {
 
   const handleRegister = async () => {
     if (!fullName || !nickname || !avatarLetter || !email || !password) {
-      Alert.alert('Erreur', 'Veuillez remplir tous les champs.');
+      showAlert('Erreur', 'Veuillez remplir tous les champs.');
       return;
     }
     if (avatarLetter.length !== 1) {
-      Alert.alert('Erreur', 'La lettre d\'avatar doit être un seul caractère.');
+      showAlert('Erreur', 'La lettre d\'avatar doit être un seul caractère.');
       return;
     }
     setLoading(true);
@@ -37,7 +38,7 @@ export default function RegisterScreen() {
         router.replace('/(main)');
       }
     } catch (error: any) {
-      Alert.alert('Erreur', error.message);
+      showAlert('Erreur', error.message);
     } finally {
       setLoading(false);
     }

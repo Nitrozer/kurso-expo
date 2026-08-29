@@ -1,4 +1,5 @@
-import { View, Alert, Platform, Pressable } from 'react-native';
+import { View, Pressable } from 'react-native';
+import { showAlert, showPrompt, promptSupported } from '../../lib/alert';
 import { KText } from '../ui/Text';
 import { useColors } from '../../theme/useColors';
 import { fonts } from '../../theme/typography';
@@ -69,8 +70,8 @@ function MiniTemplatePreview({ color }: { color: string }) {
 export function NotebookCard({ notebook, pageCount, subjectName, onPress, onRename, onChangeColor, onDelete }: Props) {
   const colors = useColors();
   const handleRename = () => {
-    if (Platform.OS === 'ios') {
-      Alert.prompt(
+    if (promptSupported) {
+      showPrompt(
         'Renommer le cahier',
         '',
         (newTitle) => {
@@ -78,14 +79,13 @@ export function NotebookCard({ notebook, pageCount, subjectName, onPress, onRena
             onRename(notebook.id, newTitle.trim());
           }
         },
-        'plain-text',
         notebook.title,
       );
     }
   };
 
   const handleChangeColor = () => {
-    Alert.alert(
+    showAlert(
       'Changer la couleur',
       'Choisissez une couleur de couverture',
       [
@@ -99,7 +99,7 @@ export function NotebookCard({ notebook, pageCount, subjectName, onPress, onRena
   };
 
   const handleDelete = () => {
-    Alert.alert(
+    showAlert(
       'Supprimer le cahier',
       `Supprimer "${notebook.title}" et toutes ses pages ?`,
       [
@@ -110,7 +110,7 @@ export function NotebookCard({ notebook, pageCount, subjectName, onPress, onRena
   };
 
   const handleLongPress = () => {
-    Alert.alert(
+    showAlert(
       notebook.title,
       '',
       [

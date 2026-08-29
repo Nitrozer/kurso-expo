@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { View, TextInput, Pressable, ScrollView, Switch, Alert } from 'react-native';
+import { showAlert } from '../../lib/alert';
+import { View, TextInput, Pressable, ScrollView, Switch } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { KText } from '../../components/ui/Text';
 import { useColors } from '../../theme/useColors';
@@ -92,7 +93,7 @@ export default function NewEventModal() {
   const handleSave = async () => {
     const userId = session?.user?.id;
     if (!userId || !title.trim() || !date.trim() || !startTime.trim() || !endTime.trim()) {
-      Alert.alert('Erreur', 'Veuillez remplir tous les champs obligatoires.');
+      showAlert('Erreur', 'Veuillez remplir tous les champs obligatoires.');
       return;
     }
 
@@ -144,7 +145,7 @@ export default function NewEventModal() {
 
       router.back();
     } catch {
-      Alert.alert('Erreur', "Impossible de creer l'evenement.");
+      showAlert('Erreur', "Impossible de creer l'evenement.");
     } finally {
       setIsLoading(false);
     }

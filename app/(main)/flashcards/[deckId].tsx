@@ -1,4 +1,5 @@
-import { View, ScrollView, Pressable, TextInput, Alert, Platform } from 'react-native';
+import { View, ScrollView, Pressable, TextInput } from 'react-native';
+import { showAlert, showPrompt, promptSupported } from '../../../lib/alert';
 import { useEffect, useState, useMemo } from 'react';
 import { useLocalSearchParams } from 'expo-router';
 import * as Sharing from 'expo-sharing';
@@ -250,13 +251,13 @@ export default function DeckReviewScreen() {
               <Pressable
                 key={card.id}
                 onPress={() => {
-                  if (Platform.OS === 'ios' && deckId) {
-                    Alert.prompt(
+                  if (promptSupported && deckId) {
+                    showPrompt(
                       'Modifier le recto',
                       '',
                       (newFront) => {
                         if (newFront && newFront.trim()) {
-                          Alert.prompt(
+                          showPrompt(
                             'Modifier le verso',
                             '',
                             (newBack) => {
@@ -264,18 +265,16 @@ export default function DeckReviewScreen() {
                                 updateCard(card.id, deckId, { front: newFront.trim(), back: newBack.trim() });
                               }
                             },
-                            'plain-text',
                             card.back,
                           );
                         }
                       },
-                      'plain-text',
                       card.front,
                     );
                   }
                 }}
                 onLongPress={() => {
-                  Alert.alert(
+                  showAlert(
                     'Supprimer la carte',
                     `Supprimer cette carte ?`,
                     [

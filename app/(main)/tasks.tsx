@@ -1,4 +1,5 @@
-import { View, ScrollView, Pressable, Alert } from 'react-native';
+import { View, ScrollView, Pressable } from 'react-native';
+import { showAlert } from '../../lib/alert';
 import { useEffect } from 'react';
 import { Plus } from 'lucide-react-native';
 import { TaskList } from '../../components/tasks/TaskList';
@@ -30,7 +31,7 @@ export default function TasksScreen() {
         subject_id: null,
       });
     } catch (e: any) {
-      Alert.alert('Erreur', e.message);
+      showAlert('Erreur', e.message);
     }
   };
 

@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { View, TextInput, Pressable, Text, Alert, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
+import { showAlert } from '../../lib/alert';
+import { View, TextInput, Pressable, Text, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
 import { Link, router } from 'expo-router';
 import { Eye, EyeOff } from 'lucide-react-native';
 import { signIn } from '../../lib/auth';
@@ -19,7 +20,7 @@ export default function LoginScreen() {
       await signIn(email, password);
       router.replace('/(main)');
     } catch (error: any) {
-      Alert.alert('Erreur', error.message);
+      showAlert('Erreur', error.message);
     } finally {
       setLoading(false);
     }

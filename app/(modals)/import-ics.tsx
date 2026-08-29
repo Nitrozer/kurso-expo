@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { View, TextInput, Pressable, Alert } from 'react-native';
+import { showAlert } from '../../lib/alert';
+import { View, TextInput, Pressable } from 'react-native';
 import { router } from 'expo-router';
 import * as DocumentPicker from 'expo-document-picker';
 import { KText } from '../../components/ui/Text';
@@ -35,7 +36,7 @@ export default function ImportICSModal() {
       const events = parseICS(content);
       setParsedEvents(events);
     } catch (e) {
-      Alert.alert('Erreur', 'Impossible de lire le fichier.');
+      showAlert('Erreur', 'Impossible de lire le fichier.');
     }
   };
 
@@ -48,7 +49,7 @@ export default function ImportICSModal() {
       const events = parseICS(content);
       setParsedEvents(events);
     } catch (e) {
-      Alert.alert('Erreur', "Impossible de recuperer le fichier depuis l'URL.");
+      showAlert('Erreur', "Impossible de recuperer le fichier depuis l'URL.");
     } finally {
       setIsLoading(false);
     }
@@ -74,7 +75,7 @@ export default function ImportICSModal() {
       }
       router.back();
     } catch (e) {
-      Alert.alert('Erreur', "Impossible d'importer les evenements.");
+      showAlert('Erreur', "Impossible d'importer les evenements.");
     } finally {
       setIsLoading(false);
     }

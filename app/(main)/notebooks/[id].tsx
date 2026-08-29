@@ -1,4 +1,5 @@
-import { View, useWindowDimensions, Pressable, ScrollView, Alert } from 'react-native';
+import { View, useWindowDimensions, Pressable, ScrollView } from 'react-native';
+import { showAlert } from '../../../lib/alert';
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Download, Plus, ChevronLeft, Undo2, Redo2, ImagePlus, Mic } from 'lucide-react-native';
@@ -100,7 +101,7 @@ export default function NotebookEditorScreen() {
   };
 
   const handleAddPage = () => {
-    Alert.alert(
+    showAlert(
       'Nouvelle page',
       'Choisissez un modele',
       [
@@ -115,10 +116,10 @@ export default function NotebookEditorScreen() {
 
   const handleDeletePage = (pageId: string, notebookId: string) => {
     if (notebookPages.length <= 1) {
-      Alert.alert('Impossible', 'Le cahier doit contenir au moins une page.');
+      showAlert('Impossible', 'Le cahier doit contenir au moins une page.');
       return;
     }
-    Alert.alert('Supprimer la page', 'Cette action est irreversible.', [
+    showAlert('Supprimer la page', 'Cette action est irreversible.', [
       { text: 'Annuler', style: 'cancel' },
       {
         text: 'Supprimer',

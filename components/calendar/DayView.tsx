@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
-import { View, ScrollView, Pressable, Alert } from 'react-native';
+import { showAlert } from '../../lib/alert';
+import { View, ScrollView, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
 import { KText } from '../ui/Text';
 import { useColors } from '../../theme/useColors';
@@ -32,7 +33,7 @@ export function DayView({ events, date }: Props) {
   );
 
   const handleEventPress = (evt: ScheduleEvent) => {
-    Alert.alert(
+    showAlert(
       evt.title,
       evt.location ? `Lieu : ${evt.location}` : '',
       [
@@ -46,7 +47,7 @@ export function DayView({ events, date }: Props) {
           text: 'Supprimer',
           style: 'destructive',
           onPress: () => {
-            Alert.alert(
+            showAlert(
               'Supprimer l\'événement',
               `Supprimer "${evt.title}" ?`,
               [

@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
-import { View, Pressable, Alert, Platform } from 'react-native';
+import { showAlert, showPrompt, promptSupported } from '../../lib/alert';
+import { View, Pressable } from 'react-native';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { Checkbox } from '../ui/Checkbox';
 import { KText } from '../ui/Text';
@@ -28,8 +29,8 @@ export function TaskItem({ task, onToggle, onDelete, subject }: Props) {
   }));
 
   const handleEditTitle = () => {
-    if (Platform.OS === 'ios') {
-      Alert.prompt(
+    if (promptSupported) {
+      showPrompt(
         'Modifier la tâche',
         '',
         (newTitle) => {
@@ -37,18 +38,17 @@ export function TaskItem({ task, onToggle, onDelete, subject }: Props) {
             updateTask(task.id, { title: newTitle.trim() });
           }
         },
-        'plain-text',
         task.title,
       );
     } else {
       // Android fallback — use Alert with info
-      Alert.alert('Modifier la tâche', 'Utilisez le menu (appui long) pour modifier cette tâche.');
+      showAlert('Modifier la tâche', 'Utilisez le menu (appui long) pour modifier cette tâche.');
     }
   };
 
   const handleEditDueDate = () => {
-    if (Platform.OS === 'ios') {
-      Alert.prompt(
+    if (promptSupported) {
+      showPrompt(
         'Changer la date',
         'Format : AAAA-MM-JJ HH:MM',
         (newDate) => {
@@ -57,11 +57,10 @@ export function TaskItem({ task, onToggle, onDelete, subject }: Props) {
             if (!isNaN(parsed.getTime())) {
               updateTask(task.id, { due_date: parsed.toISOString() });
             } else {
-              Alert.alert('Erreur', 'Format de date invalide.');
+              showAlert('Erreur', 'Format de date invalide.');
             }
           }
         },
-        'plain-text',
         task.due_date
           ? new Date(task.due_date).toISOString().slice(0, 16).replace('T', ' ')
           : '',
@@ -70,7 +69,7 @@ export function TaskItem({ task, onToggle, onDelete, subject }: Props) {
   };
 
   const handleLongPress = () => {
-    Alert.alert(
+    showAlert(
       task.title,
       '',
       [
@@ -86,7 +85,7 @@ export function TaskItem({ task, onToggle, onDelete, subject }: Props) {
           text: 'Supprimer',
           style: 'destructive',
           onPress: () => {
-            Alert.alert(
+            showAlert(
               'Supprimer la tâche',
               `Supprimer "${task.title}" ?`,
               [

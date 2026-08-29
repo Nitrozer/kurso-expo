@@ -1,4 +1,5 @@
-import { View, ScrollView, Pressable, Alert, TextInput, Modal, useWindowDimensions } from 'react-native';
+import { View, ScrollView, Pressable, TextInput, Modal, useWindowDimensions } from 'react-native';
+import { showAlert } from '../../../lib/alert';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'expo-router';
 import { Plus, Search, X, LayoutGrid, List } from 'lucide-react-native';
@@ -77,10 +78,10 @@ export default function NotebooksScreen() {
       if (notebook) {
         router.push(`/notebooks/${notebook.id}` as never);
       } else {
-        Alert.alert('Erreur', 'Impossible de creer le cahier');
+        showAlert('Erreur', 'Impossible de creer le cahier');
       }
     } catch (e: any) {
-      Alert.alert('Erreur', e.message);
+      showAlert('Erreur', e.message);
     }
   };
 
@@ -99,10 +100,10 @@ export default function NotebooksScreen() {
       if (note) {
         router.push(`/notebooks/note/${note.id}` as never);
       } else {
-        Alert.alert('Erreur', 'Impossible de creer la note');
+        showAlert('Erreur', 'Impossible de creer la note');
       }
     } catch (e: any) {
-      Alert.alert('Erreur', e.message);
+      showAlert('Erreur', e.message);
     }
   };
 

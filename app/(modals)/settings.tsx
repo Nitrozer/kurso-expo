@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { View, Pressable, ScrollView, TextInput, Alert } from 'react-native';
+import { showAlert } from '../../lib/alert';
+import { View, Pressable, ScrollView, TextInput } from 'react-native';
 import { router } from 'expo-router';
 import { X, Pencil, Trash2, Plus } from 'lucide-react-native';
 import { documentDirectory, writeAsStringAsync } from 'expo-file-system/legacy';
@@ -54,14 +55,14 @@ export default function SettingsModal() {
         avatar_letter: avatarLetter.toUpperCase() || undefined,
       });
       setProfile(updated);
-      Alert.alert('Profil mis à jour');
+      showAlert('Profil mis à jour');
     } catch {
-      Alert.alert('Erreur', 'Impossible de mettre à jour le profil');
+      showAlert('Erreur', 'Impossible de mettre à jour le profil');
     }
   };
 
   const handleDeleteSubject = (id: string, name: string) => {
-    Alert.alert('Supprimer', `Supprimer la matière "${name}" ?`, [
+    showAlert('Supprimer', `Supprimer la matière "${name}" ?`, [
       { text: 'Annuler', style: 'cancel' },
       { text: 'Supprimer', style: 'destructive', onPress: () => deleteSubject(id) },
     ]);
@@ -121,12 +122,12 @@ export default function SettingsModal() {
       await writeAsStringAsync(fileUri, json);
       await Sharing.shareAsync(fileUri, { mimeType: 'application/json' });
     } catch {
-      Alert.alert('Erreur', "Impossible d'exporter les données");
+      showAlert('Erreur', "Impossible d'exporter les données");
     }
   };
 
   const handleDeleteAccount = () => {
-    Alert.alert(
+    showAlert(
       'Supprimer le compte',
       'Cette action est irréversible. Toutes vos données seront perdues.',
       [
@@ -138,7 +139,7 @@ export default function SettingsModal() {
             try {
               await signOut();
             } catch {
-              Alert.alert('Erreur', 'Impossible de supprimer le compte');
+              showAlert('Erreur', 'Impossible de supprimer le compte');
             }
           },
         },

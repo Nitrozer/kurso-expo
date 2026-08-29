@@ -1,4 +1,5 @@
-import { View, ScrollView, Pressable, Alert, TextInput, Platform } from 'react-native';
+import { View, ScrollView, Pressable, TextInput } from 'react-native';
+import { showAlert, showPrompt, promptSupported } from '../../../lib/alert';
 import { useEffect, useState } from 'react';
 import { useFlashcardsStore } from '../../../stores/flashcardsStore';
 import { useSubjectsStore } from '../../../stores/subjectsStore';
@@ -73,15 +74,15 @@ export default function FlashcardsScreen() {
             cards={cards.get(deck.id) ?? []}
             subjectName={deck.subject_id ? subjects.find((s) => s.id === deck.subject_id)?.name : undefined}
             onLongPress={() => {
-              Alert.alert(
+              showAlert(
                 deck.title,
                 '',
                 [
                   {
                     text: 'Renommer',
                     onPress: () => {
-                      if (Platform.OS === 'ios') {
-                        Alert.prompt(
+                      if (promptSupported) {
+                        showPrompt(
                           'Renommer le deck',
                           '',
                           (newTitle) => {
@@ -89,7 +90,6 @@ export default function FlashcardsScreen() {
                               updateDeck(deck.id, { title: newTitle.trim() });
                             }
                           },
-                          'plain-text',
                           deck.title,
                         );
                       }
@@ -99,7 +99,7 @@ export default function FlashcardsScreen() {
                     text: 'Supprimer',
                     style: 'destructive',
                     onPress: () => {
-                      Alert.alert(
+                      showAlert(
                         'Supprimer le deck',
                         `Supprimer "${deck.title}" et toutes ses cartes ?`,
                         [
