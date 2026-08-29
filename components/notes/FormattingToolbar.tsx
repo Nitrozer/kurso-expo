@@ -1,6 +1,6 @@
 import { View, Pressable } from 'react-native';
 import { Bold, Italic, List, FunctionSquare, Plus } from 'lucide-react-native';
-import { colors } from '../../theme/colors';
+import { useColors } from '../../theme/useColors';
 
 type Props = {
   onBold?: () => void;
@@ -11,6 +11,7 @@ type Props = {
 };
 
 export function FormattingToolbar({ onBold, onItalic, onList, onFormula, onAdd }: Props) {
+  const colors = useColors();
   const buttons = [
     { icon: Bold, onPress: onBold },
     { icon: Italic, onPress: onItalic },
@@ -40,9 +41,9 @@ export function FormattingToolbar({ onBold, onItalic, onList, onFormula, onAdd }
           justifyContent: 'space-between',
           height: 56,
           paddingHorizontal: 16,
-          backgroundColor: '#FFFFFF',
+          backgroundColor: colors.surfaceBright,
           borderWidth: 1,
-          borderColor: '#C5C5D9',
+          borderColor: colors.borderStrong,
           borderRadius: 9999,
         }}
       >
@@ -59,12 +60,12 @@ export function FormattingToolbar({ onBold, onItalic, onList, onFormula, onAdd }
                 borderRadius: 20,
               }}
             >
-              <Icon size={20} strokeWidth={1.6} color="#444656" />
+              <Icon size={20} strokeWidth={1.6} color={colors.inkBody} />
             </Pressable>
           ))}
         </View>
 
-        <View style={{ width: 1, height: 24, backgroundColor: '#C5C5D9', marginHorizontal: 4 }} />
+        <View style={{ width: 1, height: 24, backgroundColor: colors.borderStrong, marginHorizontal: 4 }} />
 
         <Pressable
           onPress={onAdd}
@@ -77,7 +78,7 @@ export function FormattingToolbar({ onBold, onItalic, onList, onFormula, onAdd }
             backgroundColor: colors.blue,
           }}
         >
-          <Plus size={20} strokeWidth={1.8} color="#FFFFFF" />
+          <Plus size={20} strokeWidth={1.8} color={colors.onDark} />
         </Pressable>
       </View>
     </View>

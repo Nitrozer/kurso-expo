@@ -1,11 +1,12 @@
 import { View, Text } from 'react-native';
 import { Bell } from 'lucide-react-native';
 import { textPresets } from '../../theme/typography';
-import { colors } from '../../theme/colors';
+import { useColors } from '../../theme/useColors';
 import { useAuthStore } from '../../stores/authStore';
 import { getDayName, getWeekNumber, formatDateFR } from '../../lib/utils';
 
 export function Header() {
+  const colors = useColors();
   const profile = useAuthStore((s) => s.profile);
   const now = new Date();
   const nickname = profile?.nickname ?? profile?.full_name ?? 'Etudiant';
@@ -14,18 +15,18 @@ export function Header() {
     <View className="px-xxl pt-xxl pb-lg">
       {/* Top row: eyebrow + date chip + bell */}
       <View className="flex-row items-center justify-between mb-md">
-        <Text style={[textPresets.eyebrow, { color: '#B8B0A4' }]}>
+        <Text style={[textPresets.eyebrow, { color: colors.inkMuted }]}>
           {getDayName(now)} · Semaine {getWeekNumber(now)}
         </Text>
         <View className="flex-row items-center gap-sm">
           {/* Date chip */}
-          <View className="bg-dark px-md py-xs rounded-pill">
-            <Text style={[textPresets.dateChip, { color: '#FFFFFF' }]}>
+          <View className="px-md py-xs rounded-pill" style={{ backgroundColor: colors.dark }}>
+            <Text style={[textPresets.dateChip, { color: colors.onDark }]}>
               {formatDateFR(now)}
             </Text>
           </View>
           {/* Notification bell */}
-          <View className="w-[36px] h-[36px] rounded-full border border-border items-center justify-center">
+          <View className="w-[36px] h-[36px] rounded-full border items-center justify-center" style={{ borderColor: colors.border }}>
             <Bell size={18} strokeWidth={1.6} color={colors.inkGhost} />
           </View>
         </View>

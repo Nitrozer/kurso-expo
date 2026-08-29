@@ -5,7 +5,7 @@ import { X, Pencil, Trash2, Plus } from 'lucide-react-native';
 import { documentDirectory, writeAsStringAsync } from 'expo-file-system/legacy';
 import * as Sharing from 'expo-sharing';
 import { KText } from '../../components/ui/Text';
-import { colors } from '../../theme/colors';
+import { useColors } from '../../theme/useColors';
 import { fonts } from '../../theme/typography';
 import { useAuthStore } from '../../stores/authStore';
 import { useSubjectsStore } from '../../stores/subjectsStore';
@@ -30,6 +30,7 @@ type SubjectForm = {
 const emptySubjectForm: SubjectForm = { name: '', short_name: '', professor: '', color: PRESET_COLORS[0] };
 
 export default function SettingsModal() {
+  const colors = useColors();
   const { session, profile, setProfile } = useAuthStore();
   const { subjects, addSubject, updateSubject, deleteSubject } = useSubjectsStore();
 
@@ -270,6 +271,7 @@ export default function SettingsModal() {
 /* ─── Helper Components ─── */
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
+  const colors = useColors();
   return (
     <View style={{ borderWidth: 1, borderColor: colors.border, borderRadius: 8, padding: 16, marginTop: 16 }}>
       <KText preset="sectionTitle" color={colors.ink} style={{ marginBottom: 12 }}>
@@ -281,6 +283,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 }
 
 function LabeledInput({ label, ...props }: { label: string } & React.ComponentProps<typeof TextInput>) {
+  const colors = useColors();
   return (
     <View style={{ gap: 4 }}>
       <KText preset="sectionAction" color={colors.inkSoft}>
@@ -305,6 +308,7 @@ function LabeledInput({ label, ...props }: { label: string } & React.ComponentPr
 }
 
 function ToggleRow({ label, value, onToggle }: { label: string; value: boolean; onToggle: () => void }) {
+  const colors = useColors();
   return (
     <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
       <KText preset="taskText" color={colors.ink}>
@@ -338,6 +342,7 @@ function ToggleRow({ label, value, onToggle }: { label: string; value: boolean; 
 }
 
 function ThemePicker() {
+  const colors = useColors();
   const { mode, setTheme } = useThemeStore();
   return (
     <View style={{ flexDirection: 'row', borderWidth: 1, borderColor: colors.border, borderRadius: 8, overflow: 'hidden' }}>
@@ -382,6 +387,7 @@ function SubjectFormView({
   onSave: () => void;
   onCancel: () => void;
 }) {
+  const colors = useColors();
   return (
     <View style={{ borderWidth: 1, borderColor: colors.borderSoft, borderRadius: 6, padding: 12, gap: 8, marginTop: 4 }}>
       <LabeledInput label="Nom" value={form.name} onChangeText={(t: string) => setForm({ ...form, name: t })} placeholder="Mathématiques" />

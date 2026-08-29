@@ -4,7 +4,6 @@ import {
   House, Calendar, BookOpen, CheckSquare, BarChart3,
   Brain, Calculator, Settings, BookMarked,
 } from 'lucide-react-native';
-import { colors } from '../../theme/colors';
 import { useColors } from '../../theme/useColors';
 import { useAuthStore } from '../../stores/authStore';
 import { useGamificationStore } from '../../stores/gamificationStore';
@@ -43,7 +42,7 @@ export function Rail() {
         className="w-full items-center py-md relative"
       >
         {active && (
-          <View className="absolute left-0 top-[25%] h-[50%] w-[2px] bg-accent rounded-r-full" />
+          <View className="absolute left-0 top-[25%] h-[50%] w-[2px] rounded-r-full" style={{ backgroundColor: c.blue }} />
         )}
         <Icon size={22} strokeWidth={1.6} color={active ? c.ink : c.inkGhost} />
       </Pressable>
@@ -63,14 +62,14 @@ export function Rail() {
       </View>
       <View className="flex-1">
         {mainItems.map(renderItem)}
-        <View className="w-[24px] h-[1px] bg-border self-center my-lg" />
+        <View className="w-[24px] h-[1px] self-center my-lg" style={{ backgroundColor: c.border }} />
         {extraItems.map(renderItem)}
       </View>
       <View className="items-center">
         <Pressable onPress={() => router.push('/(modals)/settings')}>
           <Settings size={20} strokeWidth={1.6} color={c.inkGhost} />
         </Pressable>
-        <View className="w-[32px] h-[32px] rounded-full border border-border-soft items-center justify-center mt-md">
+        <View className="w-[32px] h-[32px] rounded-full border items-center justify-center mt-md" style={{ borderColor: c.borderSoft }}>
           <Text style={{ fontFamily: 'DMSans_500Medium', fontSize: 12, color: c.ink }}>
             {profile?.avatar_letter ?? '?'}
           </Text>

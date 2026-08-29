@@ -1,6 +1,7 @@
 import { View, Image, Pressable } from 'react-native';
 import { KText } from '../ui/Text';
-import { colors } from '../../theme/colors';
+import { useColors } from '../../theme/useColors';
+import { paper } from '../../theme/paper';
 import type { NotebookPage } from '../../types';
 
 type Props = {
@@ -18,6 +19,7 @@ const templateLabels: Record<string, string> = {
 };
 
 export function PageThumbnail({ page, isActive, onPress, onDelete }: Props) {
+  const colors = useColors();
   const thumbnailBase64 = (page.drawing_data as { thumbnail?: string } | null)?.thumbnail;
 
   return (
@@ -31,7 +33,7 @@ export function PageThumbnail({ page, isActive, onPress, onDelete }: Props) {
         borderRadius: 6,
         borderWidth: isActive ? 2 : 1,
         borderColor: isActive ? colors.blue : colors.border,
-        backgroundColor: colors.bg,
+        backgroundColor: paper.bg,
         alignItems: 'center',
         justifyContent: 'center',
         marginBottom: 8,
@@ -71,7 +73,7 @@ export function PageThumbnail({ page, isActive, onPress, onDelete }: Props) {
 }
 
 function TemplatePreview({ template }: { template: string }) {
-  const lineColor = '#E0D8CE';
+  const lineColor = paper.lineSubtle;
 
   if (template === 'blank') return null;
 

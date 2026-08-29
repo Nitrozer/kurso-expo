@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { View, ScrollView } from 'react-native';
 import { KText } from '../ui/Text';
-import { colors } from '../../theme/colors';
+import { useColors } from '../../theme/useColors';
 import type { ScheduleEvent } from '../../types';
 
 type Props = {
@@ -19,6 +19,7 @@ function toDateKey(d: Date): string {
 }
 
 export function WeekView({ events, weekStart }: Props) {
+  const colors = useColors();
   const weekDays = useMemo(() => {
     const days: Date[] = [];
     for (let i = 0; i < 7; i++) {
@@ -48,7 +49,7 @@ export function WeekView({ events, weekStart }: Props) {
   return (
     <View className="flex-1">
       {/* Day headers */}
-      <View className="flex-row border-b border-border" style={{ paddingLeft: 36 }}>
+      <View className="flex-row border-b" style={{ paddingLeft: 36, borderColor: colors.border }}>
         {weekDays.map((day, idx) => {
           const isToday = toDateKey(day) === todayKey;
           return (

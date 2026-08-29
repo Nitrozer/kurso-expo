@@ -6,7 +6,7 @@ import { SectionDivider } from '../ui/SectionDivider';
 import { KText } from '../ui/Text';
 import { useTasksStore } from '../../stores/tasksStore';
 import { useSubjectsStore } from '../../stores/subjectsStore';
-import { colors } from '../../theme/colors';
+import { useColors } from '../../theme/useColors';
 import type { Task } from '../../types';
 
 type Props = {
@@ -32,6 +32,7 @@ function isThisWeek(date: Date, today: Date) {
 }
 
 export function TaskList({ tasks }: Props) {
+  const colors = useColors();
   const toggleTask = useTasksStore((s) => s.toggleTask);
   const deleteTask = useTasksStore((s) => s.deleteTask);
   const subjects = useSubjectsStore((s) => s.subjects);
@@ -109,7 +110,7 @@ export function TaskList({ tasks }: Props) {
             <KText preset="sectionTitle" color={colors.inkMuted}>
               Terminees
             </KText>
-            <View className="flex-1 h-[1px] bg-border" />
+            <View className="flex-1 h-[1px]" style={{ backgroundColor: colors.border }} />
             {doneExpanded ? (
               <ChevronDown size={14} strokeWidth={1.6} color={colors.inkMuted} />
             ) : (

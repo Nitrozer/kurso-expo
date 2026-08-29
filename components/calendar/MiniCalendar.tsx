@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react';
 import { View, Pressable } from 'react-native';
 import { ChevronLeft, ChevronRight } from 'lucide-react-native';
 import { KText } from '../ui/Text';
-import { colors } from '../../theme/colors';
+import { useColors } from '../../theme/useColors';
 import { getMonthName } from '../../lib/utils';
 import type { ScheduleEvent } from '../../types';
 
@@ -18,6 +18,7 @@ function toDateKey(d: Date): string {
 }
 
 export function MiniCalendar({ events, onSelectDay }: Props) {
+  const colors = useColors();
   const [viewDate, setViewDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
 

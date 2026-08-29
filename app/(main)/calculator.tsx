@@ -1,7 +1,7 @@
 import { View, Pressable } from 'react-native';
 import { useState } from 'react';
 import { KText } from '../../components/ui/Text';
-import { colors } from '../../theme/colors';
+import { useColors } from '../../theme/useColors';
 import { fonts } from '../../theme/typography';
 
 type ButtonType = 'digit' | 'operator' | 'function' | 'equals' | 'scientific' | 'clear';
@@ -75,6 +75,7 @@ const EXTRA_ROW: ButtonDef[] = [
 ];
 
 export default function CalculatorScreen() {
+  const colors = useColors();
   const [expression, setExpression] = useState('');
   const [result, setResult] = useState('0');
   const [isSecond, setIsSecond] = useState(false);
@@ -211,9 +212,9 @@ export default function CalculatorScreen() {
       case 'equals':
         return { ...base, backgroundColor: colors.dark };
       case 'digit':
-        return { ...base, borderWidth: 1, borderColor: '#E0D8CE' };
+        return { ...base, borderWidth: 1, borderColor: colors.borderSoft };
       case 'operator':
-        return { ...base, borderWidth: 1, borderColor: '#E0D8CE' };
+        return { ...base, borderWidth: 1, borderColor: colors.borderSoft };
       case 'scientific':
         return { ...base };
       case 'function':

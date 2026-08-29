@@ -7,12 +7,13 @@ import { useFlashcardsStore } from '../../stores/flashcardsStore';
 import { useGamificationStore } from '../../stores/gamificationStore';
 import { FlipCard } from '../../components/flashcards/FlipCard';
 import { KText } from '../../components/ui/Text';
-import { colors } from '../../theme/colors';
+import { useColors } from '../../theme/useColors';
 import { fonts } from '../../theme/typography';
 
 type Phase = 'pick' | 'notes' | 'flashcards' | 'done';
 
 export default function RevisionScreen() {
+  const colors = useColors();
   const session = useAuthStore((s) => s.session);
   const subjects = useSubjectsStore((s) => s.subjects);
   const notes = useNotesStore((s) => s.notes);
@@ -149,7 +150,7 @@ export default function RevisionScreen() {
   ];
 
   return (
-    <ScrollView className="flex-1 bg-parchment" showsVerticalScrollIndicator={false}>
+    <ScrollView className="flex-1" style={{ backgroundColor: colors.bg }} showsVerticalScrollIndicator={false}>
       {/* Header */}
       <View style={{ paddingHorizontal: 28, paddingTop: 28, paddingBottom: 12 }}>
         <KText style={{ fontFamily: fonts.serif.bold, fontSize: 28, color: colors.ink, letterSpacing: -0.8 }}>
@@ -166,7 +167,7 @@ export default function RevisionScreen() {
               paddingVertical: 4,
             }}
           >
-            <KText style={{ fontFamily: fonts.sans.medium, fontSize: 10, color: '#FFFFFF', letterSpacing: 0.4 }}>
+            <KText style={{ fontFamily: fonts.sans.medium, fontSize: 10, color: colors.onDark, letterSpacing: 0.4 }}>
               {selectedSubject.name}
             </KText>
           </View>

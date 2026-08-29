@@ -3,7 +3,7 @@ import { View, TextInput, Pressable, Alert } from 'react-native';
 import { router } from 'expo-router';
 import * as DocumentPicker from 'expo-document-picker';
 import { KText } from '../../components/ui/Text';
-import { colors } from '../../theme/colors';
+import { useColors } from '../../theme/useColors';
 import { fonts } from '../../theme/typography';
 import { parseICS } from '../../lib/ics-parser';
 import { useScheduleStore } from '../../stores/scheduleStore';
@@ -11,6 +11,7 @@ import { useAuthStore } from '../../stores/authStore';
 import type { ScheduleEvent } from '../../types';
 
 export default function ImportICSModal() {
+  const colors = useColors();
   const [url, setUrl] = useState('');
   const [parsedEvents, setParsedEvents] = useState<Partial<ScheduleEvent>[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -80,7 +81,7 @@ export default function ImportICSModal() {
   };
 
   return (
-    <View className="flex-1 bg-parchment p-xxl">
+    <View className="flex-1 p-xxl" style={{ backgroundColor: colors.bg }}>
       <KText preset="sectionTitle" color={colors.ink} style={{ marginBottom: 20 }}>
         Importer un calendrier
       </KText>

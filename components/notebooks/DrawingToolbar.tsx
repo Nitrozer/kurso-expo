@@ -1,7 +1,7 @@
 import { View, Pressable } from 'react-native';
 import { Undo2, Redo2, Mic, X } from 'lucide-react-native';
 import { KText } from '../ui/Text';
-import { colors } from '../../theme/colors';
+import { useColors } from '../../theme/useColors';
 
 type TemplateType = 'blank' | 'lined' | 'grid' | 'dotted';
 
@@ -52,6 +52,7 @@ export function DrawingToolbar({
   canUndo,
   canRedo,
 }: Props) {
+  const colors = useColors();
   return (
     <View
       style={{
@@ -60,7 +61,7 @@ export function DrawingToolbar({
         justifyContent: 'space-between',
         paddingHorizontal: 16,
         paddingVertical: 10,
-        backgroundColor: '#F7F3ED',
+        backgroundColor: colors.bg,
         borderTopWidth: 1,
         borderTopColor: colors.border,
       }}
@@ -99,17 +100,17 @@ export function DrawingToolbar({
         {COLORS.map((c) => (
           <Pressable
             key={c.label}
-            onPress={() => onColorChange(c.value === 'eraser' ? '#F7F3ED' : c.value)}
+            onPress={() => onColorChange(c.value === 'eraser' ? colors.bg : c.value)}
             style={{
               width: 26,
               height: 26,
               borderRadius: 13,
-              borderWidth: color === (c.value === 'eraser' ? '#F7F3ED' : c.value) ? 2 : 1,
+              borderWidth: color === (c.value === 'eraser' ? colors.bg : c.value) ? 2 : 1,
               borderColor:
-                color === (c.value === 'eraser' ? '#F7F3ED' : c.value)
+                color === (c.value === 'eraser' ? colors.bg : c.value)
                   ? colors.blue
                   : colors.border,
-              backgroundColor: c.value === 'eraser' ? '#FFFFFF' : c.value,
+              backgroundColor: c.value === 'eraser' ? colors.onDark : c.value,
               alignItems: 'center',
               justifyContent: 'center',
             }}

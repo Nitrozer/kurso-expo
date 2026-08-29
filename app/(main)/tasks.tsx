@@ -5,9 +5,10 @@ import { TaskList } from '../../components/tasks/TaskList';
 import { useTasksStore } from '../../stores/tasksStore';
 import { useAuthStore } from '../../stores/authStore';
 import { KText } from '../../components/ui/Text';
-import { colors } from '../../theme/colors';
+import { useColors } from '../../theme/useColors';
 
 export default function TasksScreen() {
+  const colors = useColors();
   const { tasks, fetchTasks, addTask } = useTasksStore();
   const session = useAuthStore((s) => s.session);
   const profile = useAuthStore((s) => s.profile);
@@ -34,13 +35,13 @@ export default function TasksScreen() {
   };
 
   return (
-    <View className="flex-1 bg-parchment">
+    <View className="flex-1" style={{ backgroundColor: colors.bg }}>
       <ScrollView className="flex-1" showsVerticalScrollIndicator={false} contentContainerStyle={{ padding: 28, paddingBottom: 120 }}>
         <View style={{ marginBottom: 32 }}>
           <KText preset="heroName" color={colors.ink} style={{ fontSize: 30, lineHeight: 36 }}>
             Bonjour, {nickname}.
           </KText>
-          <KText style={{ fontFamily: 'DMSans_400Regular', fontSize: 13, color: '#5F5E5E', marginTop: 8, letterSpacing: 0.3 }}>
+          <KText style={{ fontFamily: 'DMSans_400Regular', fontSize: 13, color: colors.inkBody, marginTop: 8, letterSpacing: 0.3 }}>
             Vous avez {undoneTasks.length} tache{undoneTasks.length > 1 ? 's' : ''} prioritaire{undoneTasks.length > 1 ? 's' : ''} aujourd'hui.
           </KText>
         </View>
@@ -67,7 +68,7 @@ export default function TasksScreen() {
           elevation: 8,
         }}
       >
-        <Plus size={22} strokeWidth={1.8} color="#FFFFFF" />
+        <Plus size={22} strokeWidth={1.8} color={colors.onDark} />
       </Pressable>
     </View>
   );

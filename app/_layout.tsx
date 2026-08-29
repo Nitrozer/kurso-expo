@@ -2,6 +2,7 @@ import '../global.css';
 import { useEffect, useState, useCallback } from 'react';
 import { Slot, router } from 'expo-router';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { StatusBar } from 'expo-status-bar';
 import * as SplashScreen from 'expo-splash-screen';
 import {
   useFonts,
@@ -17,14 +18,14 @@ import {
 import { supabase } from '../lib/supabase';
 import { useAuthStore } from '../stores/authStore';
 import { useThemeStore } from '../stores/themeStore';
-import { colors } from '../theme/colors';
-import { darkColors } from '../theme/darkColors';
+import { useColors } from '../theme/useColors';
 import { getProfile } from '../lib/auth';
 import type { Session } from '@supabase/supabase-js';
 
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
+  const colors = useColors();
   const [fontsLoaded, fontError] = useFonts({
     Fraunces_900Black,
     Fraunces_700Bold,
@@ -74,13 +75,14 @@ export default function RootLayout() {
   }, [initialSession, fontsLoaded]);
 
   const themeMode = useThemeStore((s) => s.mode);
-  const themeBg = themeMode === 'dark' ? darkColors.bg : colors.bg;
 
   if (!fontsLoaded && !fontError) return null;
   if (initialSession === undefined) return null;
 
   return (
-    <GestureHandlerRootView style={{ flex: 1, backgroundColor: themeBg }}>
+    <GestureHandlerRootView style={{ flex: 1, backgroundColor: colors.bg }}>
+      {/* Texte de la barre d'etat : clair sur fond sombre, sinon illisible */}
+      <StatusBar style={themeMode === 'dark' ? 'light' : 'dark'} />
       <Slot />
     </GestureHandlerRootView>
   );

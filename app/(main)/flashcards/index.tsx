@@ -5,11 +5,12 @@ import { useSubjectsStore } from '../../../stores/subjectsStore';
 import { useAuthStore } from '../../../stores/authStore';
 import { DeckCard } from '../../../components/flashcards/DeckCard';
 import { KText } from '../../../components/ui/Text';
-import { colors } from '../../../theme/colors';
+import { useColors } from '../../../theme/useColors';
 import { fonts } from '../../../theme/typography';
 import { Plus } from 'lucide-react-native';
 
 export default function FlashcardsScreen() {
+  const colors = useColors();
   const { decks, cards, fetchDecks, addDeck, updateDeck, deleteDeck } = useFlashcardsStore();
   const { subjects } = useSubjectsStore();
   const session = useAuthStore((s) => s.session);
@@ -28,7 +29,7 @@ export default function FlashcardsScreen() {
   };
 
   return (
-    <ScrollView className="flex-1 bg-parchment p-xxl" showsVerticalScrollIndicator={false}>
+    <ScrollView className="flex-1 p-xxl" style={{ backgroundColor: colors.bg }} showsVerticalScrollIndicator={false}>
       <KText preset="heroName" color={colors.ink} style={{ marginBottom: 20 }}>
         Flashcards
       </KText>
@@ -55,7 +56,7 @@ export default function FlashcardsScreen() {
             }}
           />
           <Pressable onPress={handleAddDeck}>
-            <View className="bg-dark rounded-lg px-md py-sm">
+            <View className="rounded-lg px-md py-sm" style={{ backgroundColor: colors.dark }}>
               <KText style={{ fontFamily: fonts.sans.medium, fontSize: 11, color: colors.darkText }}>
                 Créer
               </KText>

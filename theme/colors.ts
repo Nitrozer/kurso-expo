@@ -8,6 +8,7 @@ export const colors = {
   inkMuted:     '#B0A89C',
   inkGhost:     '#C8C0B4',
   inkDim:       '#D8D0C8',
+  inkBody:      '#5F5E5E',
   blue:         '#3D5AFE',
   blueSoft:     '#8090EE',
   blueBg:       '#EEF0FF',
@@ -15,9 +16,15 @@ export const colors = {
   border:       '#E8E2DA',
   borderSoft:   '#E0D8CE',
   borderTask:   '#F0E8E0',
+  borderStrong: '#C5C5D9',
   dark:         '#111111',
   darkText:     '#F7F3ED',
   darkMuted:    '#666666',
   darkSubtle:   '#555555',
   examRed:      '#8B4B4B',
+  alertRed:     '#BA1A1A',
+  alertRedBg:   '#F6E4DE',
+  onDark:       '#FFFFFF',
 } as const;
+
+export type Palette = Record<keyof typeof colors, string>;

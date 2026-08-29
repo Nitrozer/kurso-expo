@@ -5,14 +5,15 @@ import { NoteEditor } from '../../../../components/notes/NoteEditor';
 import { FormattingToolbar } from '../../../../components/notes/FormattingToolbar';
 import { IconButton } from '../../../../components/ui/IconButton';
 import { KText } from '../../../../components/ui/Text';
-import { colors } from '../../../../theme/colors';
+import { useColors } from '../../../../theme/useColors';
 
 export default function NoteEditorScreen() {
+  const colors = useColors();
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
 
   return (
-    <View className="flex-1 bg-parchment">
+    <View className="flex-1" style={{ backgroundColor: colors.bg }}>
       <View
         style={{
           flexDirection: 'row',

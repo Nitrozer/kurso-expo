@@ -1,11 +1,12 @@
 import { Pressable } from 'react-native';
 import Animated, { useAnimatedStyle, useSharedValue, withSequence, withSpring, withTiming } from 'react-native-reanimated';
 import { Check } from 'lucide-react-native';
-import { colors } from '../../theme/colors';
+import { useColors } from '../../theme/useColors';
 
 type Props = { checked: boolean; onToggle: () => void };
 
 export function Checkbox({ checked, onToggle }: Props) {
+  const colors = useColors();
   const scale = useSharedValue(1);
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [{ scale: scale.value }],

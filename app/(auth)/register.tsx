@@ -3,9 +3,10 @@ import { View, TextInput, Pressable, Text, Alert, ScrollView } from 'react-nativ
 import { Link, router } from 'expo-router';
 import { signUp, createProfile } from '../../lib/auth';
 import { textPresets } from '../../theme/typography';
-import { colors } from '../../theme/colors';
+import { useColors } from '../../theme/useColors';
 
 export default function RegisterScreen() {
+  const colors = useColors();
   const [fullName, setFullName] = useState('');
   const [nickname, setNickname] = useState('');
   const [avatarLetter, setAvatarLetter] = useState('');
@@ -44,7 +45,7 @@ export default function RegisterScreen() {
 
   return (
     <ScrollView
-      className="flex-1 bg-parchment"
+      className="flex-1" style={{ backgroundColor: colors.bg }}
       contentContainerStyle={{ flexGrow: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 32 }}
       keyboardShouldPersistTaps="handled"
     >
@@ -57,64 +58,64 @@ export default function RegisterScreen() {
 
         {/* Full name */}
         <TextInput
-          className="w-full border border-border-soft rounded-xl px-lg py-md mb-md bg-parchment"
+          className="w-full border rounded-xl px-lg py-md mb-md"
           placeholder="Nom complet"
           placeholderTextColor={colors.inkGhost}
           value={fullName}
           onChangeText={setFullName}
           autoCapitalize="words"
-          style={{ fontFamily: 'DMSans_400Regular', fontSize: 14, color: colors.ink }}
+          style={{ fontFamily: 'DMSans_400Regular', fontSize: 14, color: colors.ink, borderColor: colors.borderSoft, backgroundColor: colors.bg }}
         />
 
         {/* Nickname */}
         <TextInput
-          className="w-full border border-border-soft rounded-xl px-lg py-md mb-md bg-parchment"
+          className="w-full border rounded-xl px-lg py-md mb-md"
           placeholder="Prénom (Bonjour X.)"
           placeholderTextColor={colors.inkGhost}
           value={nickname}
           onChangeText={setNickname}
           autoCapitalize="words"
-          style={{ fontFamily: 'DMSans_400Regular', fontSize: 14, color: colors.ink }}
+          style={{ fontFamily: 'DMSans_400Regular', fontSize: 14, color: colors.ink, borderColor: colors.borderSoft, backgroundColor: colors.bg }}
         />
 
         {/* Avatar letter */}
         <TextInput
-          className="w-full border border-border-soft rounded-xl px-lg py-md mb-md bg-parchment"
+          className="w-full border rounded-xl px-lg py-md mb-md"
           placeholder="Lettre d'avatar (1 caractère)"
           placeholderTextColor={colors.inkGhost}
           value={avatarLetter}
           onChangeText={(text) => setAvatarLetter(text.slice(0, 1).toUpperCase())}
           maxLength={1}
           autoCapitalize="characters"
-          style={{ fontFamily: 'DMSans_400Regular', fontSize: 14, color: colors.ink }}
+          style={{ fontFamily: 'DMSans_400Regular', fontSize: 14, color: colors.ink, borderColor: colors.borderSoft, backgroundColor: colors.bg }}
         />
 
         {/* Email */}
         <TextInput
-          className="w-full border border-border-soft rounded-xl px-lg py-md mb-md bg-parchment"
+          className="w-full border rounded-xl px-lg py-md mb-md"
           placeholder="Email"
           placeholderTextColor={colors.inkGhost}
           value={email}
           onChangeText={setEmail}
           keyboardType="email-address"
           autoCapitalize="none"
-          style={{ fontFamily: 'DMSans_400Regular', fontSize: 14, color: colors.ink }}
+          style={{ fontFamily: 'DMSans_400Regular', fontSize: 14, color: colors.ink, borderColor: colors.borderSoft, backgroundColor: colors.bg }}
         />
 
         {/* Password */}
         <TextInput
-          className="w-full border border-border-soft rounded-xl px-lg py-md mb-xl bg-parchment"
+          className="w-full border rounded-xl px-lg py-md mb-xl"
           placeholder="Mot de passe"
           placeholderTextColor={colors.inkGhost}
           value={password}
           onChangeText={setPassword}
           secureTextEntry
-          style={{ fontFamily: 'DMSans_400Regular', fontSize: 14, color: colors.ink }}
+          style={{ fontFamily: 'DMSans_400Regular', fontSize: 14, color: colors.ink, borderColor: colors.borderSoft, backgroundColor: colors.bg }}
         />
 
         {/* Button */}
         <Pressable
-          className="w-full bg-dark rounded-xl py-md items-center"
+          className="w-full rounded-xl py-md items-center" style={{ backgroundColor: colors.dark }}
           onPress={handleRegister}
           disabled={loading}
         >

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { View, TextInput, Pressable, ScrollView, Switch, Alert } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { KText } from '../../components/ui/Text';
-import { colors } from '../../theme/colors';
+import { useColors } from '../../theme/useColors';
 import { fonts } from '../../theme/typography';
 import { useScheduleStore } from '../../stores/scheduleStore';
 import { useSubjectsStore } from '../../stores/subjectsStore';
@@ -16,6 +16,31 @@ const RECURRENCE_OPTIONS = [
 ];
 
 export default function NewEventModal() {
+  const colors = useColors();
+
+  const inputStyle = {
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: 14,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    fontFamily: fonts.sans.regular,
+    fontSize: 13,
+    color: colors.ink,
+    marginBottom: 16,
+  };
+
+  const chipStyle = (active: boolean) => ({
+    flexDirection: 'row' as const,
+    alignItems: 'center' as const,
+    gap: 6,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: active ? colors.dark : colors.border,
+    backgroundColor: active ? colors.dark : 'transparent',
+  });
   const { eventId } = useLocalSearchParams<{ eventId?: string }>();
   const isEditMode = !!eventId;
 
@@ -126,7 +151,7 @@ export default function NewEventModal() {
   };
 
   return (
-    <ScrollView className="flex-1 bg-parchment p-xxl" showsVerticalScrollIndicator={false}>
+    <ScrollView className="flex-1 p-xxl" style={{ backgroundColor: colors.bg }} showsVerticalScrollIndicator={false}>
       <KText preset="sectionTitle" color={colors.ink} style={{ marginBottom: 20 }}>
         {isEditMode ? 'Modifier l\'événement' : 'Nouvel evenement'}
       </KText>
@@ -293,27 +318,3 @@ export default function NewEventModal() {
     </ScrollView>
   );
 }
-
-const inputStyle = {
-  borderWidth: 1,
-  borderColor: colors.border,
-  borderRadius: 14,
-  paddingHorizontal: 14,
-  paddingVertical: 12,
-  fontFamily: fonts.sans.regular,
-  fontSize: 13,
-  color: colors.ink,
-  marginBottom: 16,
-};
-
-const chipStyle = (active: boolean) => ({
-  flexDirection: 'row' as const,
-  alignItems: 'center' as const,
-  gap: 6,
-  paddingHorizontal: 12,
-  paddingVertical: 6,
-  borderRadius: 20,
-  borderWidth: 1,
-  borderColor: active ? colors.dark : colors.border,
-  backgroundColor: active ? colors.dark : 'transparent',
-});

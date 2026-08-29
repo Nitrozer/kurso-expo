@@ -3,7 +3,7 @@ import { View, Pressable, Alert, Platform } from 'react-native';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { Checkbox } from '../ui/Checkbox';
 import { KText } from '../ui/Text';
-import { colors } from '../../theme/colors';
+import { useColors } from '../../theme/useColors';
 import { useTasksStore } from '../../stores/tasksStore';
 import type { Task, Subject } from '../../types';
 
@@ -15,6 +15,7 @@ type Props = {
 };
 
 export function TaskItem({ task, onToggle, onDelete, subject }: Props) {
+  const colors = useColors();
   const updateTask = useTasksStore((s) => s.updateTask);
   const strikeWidth = useSharedValue(task.is_done ? 1 : 0);
 
@@ -111,7 +112,7 @@ export function TaskItem({ task, onToggle, onDelete, subject }: Props) {
         gap: 16,
         paddingVertical: 16,
         borderBottomWidth: 1,
-        borderBottomColor: '#F0E8E0',
+        borderBottomColor: colors.borderTask,
       }}
     >
       <Checkbox checked={task.is_done} onToggle={() => onToggle(task.id)} />

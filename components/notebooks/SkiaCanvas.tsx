@@ -1,7 +1,7 @@
 import { useEffect, useRef, useImperativeHandle, forwardRef } from 'react';
 import { View, Image } from 'react-native';
 import { PencilKitView, PencilKitViewRef } from 'expo-pencilkit-ui';
-import { colors } from '../../theme/colors';
+import { paper } from '../../theme/paper';
 
 export type SkiaCanvasRef = {
   undo: () => void;
@@ -92,11 +92,11 @@ export const SkiaCanvas = forwardRef<SkiaCanvasRef, Props>(function SkiaCanvas(
 });
 
 // Realistic paper template backgrounds (French Seyes / GoodNotes style)
-const PAPER_BG = '#F5F0EB';
-const LINE_COLOR = '#C8D0E8';
-const MARGIN_COLOR = '#E0A0A0';
-const DOT_COLOR = '#C0C0C0';
-const HOLE_BORDER = '#D0D0D0';
+const PAPER_BG = paper.bg;
+const LINE_COLOR = paper.line;
+const MARGIN_COLOR = paper.margin;
+const DOT_COLOR = paper.dot;
+const HOLE_BORDER = paper.holeBorder;
 const SPACING = 24;
 const MARGIN_X = 60;
 
@@ -196,7 +196,7 @@ function TemplateBackground({ template, width, height }: { template: string; wid
           width: holeDiameter,
           height: holeDiameter,
           borderRadius: holeDiameter / 2,
-          backgroundColor: '#FFFFFF',
+          backgroundColor: paper.hole,
           borderWidth: 1,
           borderColor: HOLE_BORDER,
         }}

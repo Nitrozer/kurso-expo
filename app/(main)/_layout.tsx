@@ -8,7 +8,7 @@ import { ThreeColumnLayout } from '../../components/layout/ThreeColumnLayout';
 import { SidebarProvider, useSidebar } from '../../components/layout/SidebarContext';
 import { Sidebar } from '../../components/layout/Sidebar';
 import { KText } from '../../components/ui/Text';
-import { colors } from '../../theme/colors';
+import { useColors } from '../../theme/useColors';
 import { supabase } from '../../lib/supabase';
 import { useNetworkStore } from '../../lib/offline';
 import { useAuthStore } from '../../stores/authStore';
@@ -23,6 +23,7 @@ import { useGamificationStore } from '../../stores/gamificationStore';
 import { requestNotificationPermissions } from '../../lib/notifications';
 
 function MainLayoutInner() {
+  const colors = useColors();
   const content = useSidebar((s) => s.content);
   const isOnline = useNetworkStore((s) => s.isOnline);
 

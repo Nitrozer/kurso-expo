@@ -9,7 +9,7 @@ import { useAuthStore } from '../../../stores/authStore';
 import { NotebookCard } from '../../../components/notebooks/NotebookCard';
 import { NoteCard } from '../../../components/notes/NoteCard';
 import { KText } from '../../../components/ui/Text';
-import { colors } from '../../../theme/colors';
+import { useColors } from '../../../theme/useColors';
 import { fonts } from '../../../theme/typography';
 
 type Tab = 'cahiers' | 'notes';
@@ -20,6 +20,7 @@ const COVER_COLORS = [
 ];
 
 export default function NotebooksScreen() {
+  const colors = useColors();
   const [activeTab, setActiveTab] = useState<Tab>('cahiers');
   const [subjectFilter, setSubjectFilter] = useState<string | null>(null);
   const [tagFilter, setTagFilter] = useState<string | null>(null);
@@ -106,7 +107,7 @@ export default function NotebooksScreen() {
   };
 
   return (
-    <View className="flex-1 bg-parchment">
+    <View className="flex-1" style={{ backgroundColor: colors.bg }}>
       <ScrollView
         className="flex-1"
         showsVerticalScrollIndicator={false}
@@ -259,24 +260,24 @@ export default function NotebooksScreen() {
                 paddingHorizontal: 16,
                 paddingVertical: 12,
                 borderWidth: 1,
-                borderColor: '#E0D8CE',
+                borderColor: colors.borderSoft,
                 borderRadius: 14,
                 marginBottom: 16,
                 marginTop: 12,
-                backgroundColor: '#FDF9F3',
+                backgroundColor: colors.surfaceBright,
               }}
             >
-              <Search size={18} color="#5F5E5E" style={{ marginRight: 12 }} />
+              <Search size={18} color={colors.inkBody} style={{ marginRight: 12 }} />
               <TextInput
                 value={searchQuery}
                 onChangeText={setSearchQuery}
                 placeholder="Chercher dans vos notes..."
-                placeholderTextColor="rgba(95,94,94,0.5)"
+                placeholderTextColor={colors.inkMuted}
                 style={{
                   flex: 1,
                   fontFamily: 'DMSans_400Regular',
                   fontSize: 14,
-                  color: '#111111',
+                  color: colors.ink,
                 }}
               />
             </View>
@@ -301,7 +302,7 @@ export default function NotebooksScreen() {
               >
                 <KText
                   preset="badgePill"
-                  color={!subjectFilter ? '#FFFFFF' : colors.inkSoft}
+                  color={!subjectFilter ? colors.onDark : colors.inkSoft}
                 >
                   Toutes
                 </KText>
@@ -323,7 +324,7 @@ export default function NotebooksScreen() {
                 >
                   <KText
                     preset="badgePill"
-                    color={subjectFilter === s.id ? '#FFFFFF' : colors.inkSoft}
+                    color={subjectFilter === s.id ? colors.onDark : colors.inkSoft}
                   >
                     {s.name}
                   </KText>
@@ -414,13 +415,13 @@ export default function NotebooksScreen() {
         >
           <View
             style={{
-              backgroundColor: '#F7F3ED',
+              backgroundColor: colors.bg,
               borderRadius: 20,
               padding: 24,
               width: '100%',
               maxWidth: 360,
               borderWidth: 1,
-              borderColor: '#E8E2DA',
+              borderColor: colors.border,
             }}
           >
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
@@ -440,7 +441,7 @@ export default function NotebooksScreen() {
               autoFocus
               style={{
                 borderWidth: 1,
-                borderColor: '#E0D8CE',
+                borderColor: colors.borderSoft,
                 borderRadius: 14,
                 paddingHorizontal: 14,
                 paddingVertical: 12,
@@ -466,7 +467,7 @@ export default function NotebooksScreen() {
                     borderRadius: 18,
                     backgroundColor: c,
                     borderWidth: newNotebookColor === c ? 3 : 0,
-                    borderColor: '#F7F3ED',
+                    borderColor: colors.bg,
                     shadowColor: newNotebookColor === c ? c : 'transparent',
                     shadowOffset: { width: 0, height: 0 },
                     shadowOpacity: newNotebookColor === c ? 0.5 : 0,

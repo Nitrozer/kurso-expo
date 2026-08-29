@@ -4,7 +4,7 @@ import { useScheduleStore } from '../../stores/scheduleStore';
 import { useTasksStore } from '../../stores/tasksStore';
 import { useSubjectsStore } from '../../stores/subjectsStore';
 import { useAuthStore } from '../../stores/authStore';
-import { colors } from '../../theme/colors';
+import { useColors } from '../../theme/useColors';
 
 const DAY_LABELS = ['L', 'M', 'M', 'J', 'V', 'S', 'D'];
 
@@ -22,6 +22,7 @@ function getWeekBounds() {
 }
 
 export default function StatsScreen() {
+  const colors = useColors();
   const { events, fetchEvents } = useScheduleStore();
   const { tasks, fetchTasks } = useTasksStore();
   const { subjects } = useSubjectsStore();
@@ -87,17 +88,17 @@ export default function StatsScreen() {
   const completion = weekTasks.total > 0 ? Math.round((weekTasks.done / weekTasks.total) * 100) : 0;
 
   return (
-    <ScrollView className="flex-1 bg-parchment" showsVerticalScrollIndicator={false} contentContainerStyle={{ padding: 28, paddingBottom: 120 }}>
+    <ScrollView className="flex-1" style={{ backgroundColor: colors.bg }} showsVerticalScrollIndicator={false} contentContainerStyle={{ padding: 28, paddingBottom: 120 }}>
       <Text style={{ fontFamily: 'Fraunces_900Black', fontSize: 32, color: colors.ink, letterSpacing: -1, marginBottom: 4 }}>
         Progression Hebdo
       </Text>
-      <Text style={{ fontFamily: 'DMSans_400Regular', fontSize: 12, color: '#5F5E5E', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 32 }}>
+      <Text style={{ fontFamily: 'DMSans_400Regular', fontSize: 12, color: colors.inkBody, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 32 }}>
         {weekLabel}
       </Text>
 
       <View style={{ flexDirection: 'row', gap: 16, marginBottom: 32 }}>
-        <View style={{ flex: 1, backgroundColor: '#F7F3ED', padding: 24, borderRadius: 14, borderBottomWidth: 1, borderBottomColor: 'rgba(197,197,217,0.3)' }}>
-          <Text style={{ fontFamily: 'DMSans_500Medium', fontSize: 10, color: '#5F5E5E', textTransform: 'uppercase', letterSpacing: 2, marginBottom: 8 }}>
+        <View style={{ flex: 1, backgroundColor: colors.bg, padding: 24, borderRadius: 14, borderBottomWidth: 1, borderBottomColor: colors.border }}>
+          <Text style={{ fontFamily: 'DMSans_500Medium', fontSize: 10, color: colors.inkBody, textTransform: 'uppercase', letterSpacing: 2, marginBottom: 8 }}>
             Heures Focus
           </Text>
           <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 4 }}>
@@ -105,8 +106,8 @@ export default function StatsScreen() {
             <Text style={{ fontFamily: 'Fraunces_300Light_Italic', fontSize: 28, color: colors.blue }}>h</Text>
           </View>
         </View>
-        <View style={{ flex: 1, backgroundColor: '#F7F3ED', padding: 24, borderRadius: 14, borderBottomWidth: 1, borderBottomColor: 'rgba(197,197,217,0.3)' }}>
-          <Text style={{ fontFamily: 'DMSans_500Medium', fontSize: 10, color: '#5F5E5E', textTransform: 'uppercase', letterSpacing: 2, marginBottom: 8 }}>
+        <View style={{ flex: 1, backgroundColor: colors.bg, padding: 24, borderRadius: 14, borderBottomWidth: 1, borderBottomColor: colors.border }}>
+          <Text style={{ fontFamily: 'DMSans_500Medium', fontSize: 10, color: colors.inkBody, textTransform: 'uppercase', letterSpacing: 2, marginBottom: 8 }}>
             Serie en cours
           </Text>
           <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 4 }}>
@@ -127,24 +128,24 @@ export default function StatsScreen() {
                   style={{
                     width: 8,
                     height: barHeight,
-                    backgroundColor: isToday ? colors.blue : '#E6E2DC',
+                    backgroundColor: isToday ? colors.blue : colors.border,
                     borderTopLeftRadius: 9999,
                     borderTopRightRadius: 9999,
                   }}
                 />
-                <Text style={{ fontFamily: 'DMSans_500Medium', fontSize: 10, color: isToday ? colors.blue : '#5F5E5E' }}>
+                <Text style={{ fontFamily: 'DMSans_500Medium', fontSize: 10, color: isToday ? colors.blue : colors.inkBody }}>
                   {DAY_LABELS[i]}
                 </Text>
               </View>
             );
           })}
         </View>
-        <View style={{ height: 1, backgroundColor: 'rgba(197,197,217,0.4)', marginTop: 8 }} />
+        <View style={{ height: 1, backgroundColor: colors.border, marginTop: 8 }} />
       </View>
 
       <View style={{ backgroundColor: colors.dark, borderRadius: 14, padding: 32, marginBottom: 32 }}>
         <View style={{ marginBottom: 24 }}>
-          <Text style={{ fontFamily: 'Fraunces_300Light_Italic', fontSize: 22, color: '#FFFFFF' }}>
+          <Text style={{ fontFamily: 'Fraunces_300Light_Italic', fontSize: 22, color: colors.onDark }}>
             Maitrise des taches
           </Text>
           <Text style={{ fontFamily: 'DMSans_400Regular', fontSize: 11, color: '#888', textTransform: 'uppercase', letterSpacing: 1, marginTop: 4 }}>
@@ -153,7 +154,7 @@ export default function StatsScreen() {
         </View>
         <View style={{ marginBottom: 16 }}>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline' }}>
-            <Text style={{ fontFamily: 'Fraunces_900Black', fontSize: 48, color: '#FFFFFF' }}>
+            <Text style={{ fontFamily: 'Fraunces_900Black', fontSize: 48, color: colors.onDark }}>
               {weekTasks.done}
               <Text style={{ fontFamily: 'Fraunces_300Light_Italic', fontSize: 28, color: colors.blue }}>/</Text>
               {weekTasks.total}
@@ -169,7 +170,7 @@ export default function StatsScreen() {
       </View>
 
       <View style={{ marginBottom: 32 }}>
-        <View style={{ borderBottomWidth: 1, borderBottomColor: '#C5C5D9', paddingBottom: 8, marginBottom: 16 }}>
+        <View style={{ borderBottomWidth: 1, borderBottomColor: colors.borderStrong, paddingBottom: 8, marginBottom: 16 }}>
           <Text style={{ fontFamily: 'Fraunces_300Light_Italic', fontSize: 18, color: colors.ink }}>
             Matieres actives
           </Text>
@@ -184,9 +185,9 @@ export default function StatsScreen() {
                 gap: 8,
                 paddingHorizontal: 12,
                 paddingVertical: 6,
-                backgroundColor: '#F7F3ED',
+                backgroundColor: colors.bg,
                 borderWidth: 1,
-                borderColor: 'rgba(197,197,217,0.5)',
+                borderColor: colors.borderSoft,
                 borderRadius: 2,
               }}
             >
@@ -197,7 +198,7 @@ export default function StatsScreen() {
             </View>
           ))}
           {subjects.length === 0 && (
-            <Text style={{ fontFamily: 'DMSans_300Light', fontSize: 12, color: '#5F5E5E' }}>
+            <Text style={{ fontFamily: 'DMSans_300Light', fontSize: 12, color: colors.inkBody }}>
               Aucune matiere configuree
             </Text>
           )}

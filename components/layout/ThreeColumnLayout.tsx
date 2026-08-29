@@ -16,11 +16,11 @@ export function ThreeColumnLayout({ children, sidebar }: Props) {
   return (
     <View className="flex-1 flex-row" style={{ backgroundColor: c.bg }}>
       {isTablet && <Rail />}
-      <View className="flex-1 border-l border-border" style={!isTablet ? { borderLeftWidth: 0 } : undefined}>
+      <View className="flex-1 border-l" style={[{ borderColor: c.border }, !isTablet ? { borderLeftWidth: 0 } : undefined]}>
         {children}
       </View>
       {isTablet && sidebar && (
-        <View className="w-[280px] border-l border-border">
+        <View className="w-[280px] border-l" style={{ borderColor: c.border }}>
           {sidebar}
         </View>
       )}

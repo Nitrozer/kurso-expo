@@ -11,10 +11,11 @@ import { VoiceRecorder } from '../../../components/notebooks/VoiceRecorder';
 import { PageThumbnail } from '../../../components/notebooks/PageThumbnail';
 import { IconButton } from '../../../components/ui/IconButton';
 import { KText } from '../../../components/ui/Text';
-import { colors } from '../../../theme/colors';
+import { useColors } from '../../../theme/useColors';
 import { exportNotebookToPdf } from '../../../lib/pdf-export';
 
 export default function NotebookEditorScreen() {
+  const colors = useColors();
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const session = useAuthStore((s) => s.session);
@@ -195,7 +196,7 @@ export default function NotebookEditorScreen() {
   const canvasHeight = windowHeight - 80;
 
   return (
-    <View className="flex-1 bg-parchment">
+    <View className="flex-1" style={{ backgroundColor: colors.bg }}>
       {/* GoodNotes-style top toolbar */}
       <View
         style={{

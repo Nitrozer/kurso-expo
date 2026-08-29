@@ -4,7 +4,7 @@ import { router } from 'expo-router';
 import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
 import { ChevronUp } from 'lucide-react-native';
 import { textPresets, fonts } from '../../theme/typography';
-import { colors } from '../../theme/colors';
+import { useColors } from '../../theme/useColors';
 import { formatTime, isToday } from '../../lib/utils';
 import { useAuthStore } from '../../stores/authStore';
 import { useScheduleStore } from '../../stores/scheduleStore';
@@ -31,6 +31,7 @@ function getEventStatus(event: { start_time: string; end_time: string }, now: Da
 }
 
 function SidebarContent() {
+  const colors = useColors();
   const events = useScheduleStore((s) => s.events);
   const tasks = useTasksStore((s) => s.tasks);
   const toggleTask = useTasksStore((s) => s.toggleTask);
@@ -93,6 +94,7 @@ function SidebarContent() {
 }
 
 const TodayBottomSheet = forwardRef<BottomSheet>(function TodayBottomSheet(_props, ref) {
+  const colors = useColors();
   const events = useScheduleStore((s) => s.events);
   const tasks = useTasksStore((s) => s.tasks);
   const toggleTask = useTasksStore((s) => s.toggleTask);
@@ -260,6 +262,7 @@ const TodayBottomSheet = forwardRef<BottomSheet>(function TodayBottomSheet(_prop
 });
 
 export default function DashboardScreen() {
+  const colors = useColors();
   const session = useAuthStore((s) => s.session);
   const fetchEvents = useScheduleStore((s) => s.fetchEvents);
   const fetchTasks = useTasksStore((s) => s.fetchTasks);
@@ -325,7 +328,7 @@ export default function DashboardScreen() {
 
   return (
     <View style={{ flex: 1 }}>
-    <ScrollView className="flex-1 bg-parchment" showsVerticalScrollIndicator={false}>
+    <ScrollView className="flex-1" style={{ backgroundColor: colors.bg }} showsVerticalScrollIndicator={false}>
       {/* Header */}
       <Header />
 
@@ -352,9 +355,9 @@ export default function DashboardScreen() {
             : undefined;
 
           // Dot color
-          let dotColor = '#E8E2DA';
-          if (status === 'now') dotColor = '#3D5AFE';
-          else if (status === 'next') dotColor = '#111111';
+          let dotColor = colors.border;
+          if (status === 'now') dotColor = colors.blue;
+          else if (status === 'next') dotColor = colors.ink;
 
           return (
             <View key={event.id} className="flex-row" style={{ minHeight: 80 }}>
@@ -371,7 +374,7 @@ export default function DashboardScreen() {
               {/* Vertical line + dot */}
               <View style={{ width: 24, alignItems: 'center' }}>
                 {index > 0 && (
-                  <View style={{ width: 1, backgroundColor: '#E8E2DA', height: 8 }} />
+                  <View style={{ width: 1, backgroundColor: colors.border, height: 8 }} />
                 )}
                 {index === 0 && <View style={{ height: 8 }} />}
                 <View
@@ -381,7 +384,7 @@ export default function DashboardScreen() {
                     borderRadius: 5,
                     backgroundColor: status === 'now' ? colors.blue : status === 'past' ? colors.bg : colors.ink,
                     borderWidth: status === 'past' ? 2 : 0,
-                    borderColor: '#E8E2DA',
+                    borderColor: colors.border,
                     ...(status === 'now' ? {
                       shadowColor: colors.blue,
                       shadowOffset: { width: 0, height: 0 },
@@ -390,7 +393,7 @@ export default function DashboardScreen() {
                     } : {}),
                   }}
                 />
-                <View style={{ width: 1, backgroundColor: '#E8E2DA', flex: 1 }} />
+                <View style={{ width: 1, backgroundColor: colors.border, flex: 1 }} />
               </View>
 
               {/* Card */}
@@ -421,7 +424,7 @@ export default function DashboardScreen() {
         bottom: 96,
         left: 28,
         right: 28,
-        backgroundColor: '#FDF9F3',
+        backgroundColor: colors.surfaceBright,
         borderWidth: 1,
         borderColor: colors.border,
         borderRadius: 14,
@@ -436,7 +439,7 @@ export default function DashboardScreen() {
           {Math.round(weekProgress * 100)}%
         </Text>
       </View>
-      <View style={{ height: 2, backgroundColor: '#E0D8CE', borderRadius: 1 }}>
+      <View style={{ height: 2, backgroundColor: colors.borderSoft, borderRadius: 1 }}>
         <View style={{ height: 2, backgroundColor: colors.ink, borderRadius: 1, width: `${Math.round(weekProgress * 100)}%` }} />
       </View>
     </View>

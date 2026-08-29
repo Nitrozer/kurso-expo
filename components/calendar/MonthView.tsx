@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { View } from 'react-native';
 import { Calendar, DateData } from 'react-native-calendars';
-import { colors } from '../../theme/colors';
+import { useColors } from '../../theme/useColors';
 import { fonts } from '../../theme/typography';
 import type { ScheduleEvent } from '../../types';
 
@@ -12,6 +12,7 @@ type Props = {
 };
 
 export function MonthView({ events, selectedDate, onDayPress }: Props) {
+  const colors = useColors();
   const markedDates = useMemo(() => {
     const marks: Record<string, { marked?: boolean; dotColor?: string; selected?: boolean; selectedColor?: string; selectedTextColor?: string }> = {};
 

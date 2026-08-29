@@ -2,13 +2,14 @@ import { useState } from 'react';
 import { View, TextInput, Pressable, ScrollView, Platform } from 'react-native';
 import { router } from 'expo-router';
 import { KText } from '../../components/ui/Text';
-import { colors } from '../../theme/colors';
+import { useColors } from '../../theme/useColors';
 import { fonts } from '../../theme/typography';
 import { useTasksStore } from '../../stores/tasksStore';
 import { useSubjectsStore } from '../../stores/subjectsStore';
 import { useAuthStore } from '../../stores/authStore';
 
 export default function NewTaskModal() {
+  const colors = useColors();
   const [title, setTitle] = useState('');
   const [selectedSubject, setSelectedSubject] = useState<string | null>(null);
   const [dueDate, setDueDate] = useState('');
@@ -39,7 +40,7 @@ export default function NewTaskModal() {
   };
 
   return (
-    <View className="flex-1 bg-parchment p-xxl">
+    <View className="flex-1 p-xxl" style={{ backgroundColor: colors.bg }}>
       <KText preset="sectionTitle" color={colors.ink} style={{ marginBottom: 20 }}>
         Nouvelle tache
       </KText>

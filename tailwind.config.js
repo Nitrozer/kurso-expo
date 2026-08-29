@@ -7,28 +7,10 @@ module.exports = {
   presets: [require('nativewind/preset')],
   theme: {
     extend: {
-      colors: {
-        parchment:       '#F7F3ED',
-        'surface-bright': '#FDF9F3',
-        'surface-alt':   '#EDE8E0',
-        ink:             '#111111',
-        'ink-soft':      '#8A8278',
-        'ink-muted':     '#B0A89C',
-        'ink-ghost':     '#C8C0B4',
-        'ink-dim':       '#D8D0C8',
-        accent:          '#3D5AFE',
-        'accent-soft':   '#8090EE',
-        'accent-bg':     '#EEF0FF',
-        'accent-border': '#C8D0FF',
-        border:          '#E8E2DA',
-        'border-soft':   '#E0D8CE',
-        'border-task':   '#F0E8E0',
-        dark:            '#111111',
-        'dark-text':     '#F7F3ED',
-        'dark-muted':    '#666666',
-        'dark-subtle':   '#555555',
-        'exam-red':      '#8B4B4B',
-      },
+      // Pas de tokens de couleur ici : la couleur vient exclusivement de
+      // useColors() (theme/colors.ts + darkColors.ts), sinon le mode sombre
+      // ne peut pas suivre. NativeWind ne garde que ce qui est independant
+      // du theme : espacements, rayons, typographie.
       spacing: {
         xs: '4px',
         sm: '8px',

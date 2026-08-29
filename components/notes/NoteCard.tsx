@@ -1,5 +1,5 @@
 import { View, Pressable, Text } from 'react-native';
-import { colors } from '../../theme/colors';
+import { useColors } from '../../theme/useColors';
 import type { Note } from '../../types';
 
 type Props = {
@@ -9,6 +9,7 @@ type Props = {
 };
 
 export function NoteCard({ note, subjectName, onPress }: Props) {
+  const colors = useColors();
   const tags = note.tags ?? [];
 
   return (
@@ -16,7 +17,7 @@ export function NoteCard({ note, subjectName, onPress }: Props) {
       onPress={onPress}
       style={{
         padding: 20,
-        backgroundColor: '#FDF9F3',
+        backgroundColor: colors.surfaceBright,
         borderWidth: 1,
         borderColor: colors.border,
         borderRadius: 12,
@@ -42,7 +43,7 @@ export function NoteCard({ note, subjectName, onPress }: Props) {
       {note.content_preview ? (
         <Text
           numberOfLines={2}
-          style={{ fontFamily: 'DMSans_300Light', fontSize: 10, color: '#5F5E5E', lineHeight: 16 }}
+          style={{ fontFamily: 'DMSans_300Light', fontSize: 10, color: colors.inkBody, lineHeight: 16 }}
         >
           {note.content_preview}
         </Text>

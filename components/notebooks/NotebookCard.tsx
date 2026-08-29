@@ -1,6 +1,6 @@
 import { View, Alert, Platform, Pressable } from 'react-native';
 import { KText } from '../ui/Text';
-import { colors } from '../../theme/colors';
+import { useColors } from '../../theme/useColors';
 import { fonts } from '../../theme/typography';
 import type { Notebook } from '../../types';
 
@@ -67,6 +67,7 @@ function MiniTemplatePreview({ color }: { color: string }) {
 }
 
 export function NotebookCard({ notebook, pageCount, subjectName, onPress, onRename, onChangeColor, onDelete }: Props) {
+  const colors = useColors();
   const handleRename = () => {
     if (Platform.OS === 'ios') {
       Alert.prompt(

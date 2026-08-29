@@ -2,7 +2,7 @@ import { View, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
 import { KText } from '../ui/Text';
 import { Card } from '../ui/Card';
-import { colors } from '../../theme/colors';
+import { useColors } from '../../theme/useColors';
 import { fonts } from '../../theme/typography';
 import type { Deck, Flashcard } from '../../types';
 
@@ -14,6 +14,7 @@ type Props = {
 };
 
 export function DeckCard({ deck, cards, subjectName, onLongPress }: Props) {
+  const colors = useColors();
   const router = useRouter();
   const now = new Date().toISOString();
   const dueCount = cards.filter((c) => !c.next_review || c.next_review <= now).length;
@@ -35,7 +36,7 @@ export function DeckCard({ deck, cards, subjectName, onLongPress }: Props) {
         </View>
         <View className="flex-row items-center gap-sm">
           {subjectName ? (
-            <View className="border border-border rounded-lg px-sm py-xs">
+            <View className="border rounded-lg px-sm py-xs" style={{ borderColor: colors.border }}>
               <KText style={{ fontFamily: fonts.sans.medium, fontSize: 8, letterSpacing: 0.96, textTransform: 'uppercase', color: colors.inkSoft }}>
                 {subjectName}
               </KText>

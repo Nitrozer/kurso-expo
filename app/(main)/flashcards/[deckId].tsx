@@ -7,11 +7,12 @@ import { useFlashcardsStore } from '../../../stores/flashcardsStore';
 import { useAuthStore } from '../../../stores/authStore';
 import { FlipCard } from '../../../components/flashcards/FlipCard';
 import { KText } from '../../../components/ui/Text';
-import { colors } from '../../../theme/colors';
+import { useColors } from '../../../theme/useColors';
 import { fonts } from '../../../theme/typography';
 import { Trash2, Share2 } from 'lucide-react-native';
 
 export default function DeckReviewScreen() {
+  const colors = useColors();
   const { deckId } = useLocalSearchParams<{ deckId: string }>();
   const session = useAuthStore((s) => s.session);
   const { decks, cards, fetchCards, addCard, updateCard, deleteCard, reviewCard } = useFlashcardsStore();
@@ -85,7 +86,7 @@ export default function DeckReviewScreen() {
   ];
 
   return (
-    <ScrollView className="flex-1 bg-parchment p-xxl" showsVerticalScrollIndicator={false}>
+    <ScrollView className="flex-1 p-xxl" style={{ backgroundColor: colors.bg }} showsVerticalScrollIndicator={false}>
       <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
         <KText preset="heroName" color={colors.ink} style={{ flex: 1 }}>
           {deck?.title ?? 'Deck'}
@@ -235,7 +236,7 @@ export default function DeckReviewScreen() {
               }}
             />
             <Pressable onPress={handleAddCard}>
-              <View className="bg-dark rounded-lg px-md py-sm self-start">
+              <View className="rounded-lg px-md py-sm self-start" style={{ backgroundColor: colors.dark }}>
                 <KText style={{ fontFamily: fonts.sans.medium, fontSize: 11, color: colors.darkText }}>
                   Ajouter
                 </KText>

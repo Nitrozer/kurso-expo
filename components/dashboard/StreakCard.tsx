@@ -1,9 +1,10 @@
 import { View, Text } from 'react-native';
 import { useGamificationStore } from '../../stores/gamificationStore';
-import { colors } from '../../theme/colors';
+import { useColors } from '../../theme/useColors';
 import { fonts } from '../../theme/typography';
 
 export function StreakCard() {
+  const colors = useColors();
   const streak = useGamificationStore((s) => s.streak);
   const todayXP = useGamificationStore((s) => s.todayXP);
   const dailyGoal = useGamificationStore((s) => s.dailyGoal);

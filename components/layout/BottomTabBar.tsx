@@ -1,7 +1,7 @@
 import { View, Pressable, useWindowDimensions } from 'react-native';
 import { usePathname, router } from 'expo-router';
 import { House, Calendar, BookOpen, CheckSquare, BarChart3 } from 'lucide-react-native';
-import { colors } from '../../theme/colors';
+import { useColors } from '../../theme/useColors';
 
 const tabs = [
   { icon: House, path: '/(main)', label: 'Home' },
@@ -12,6 +12,7 @@ const tabs = [
 ];
 
 export function BottomTabBar() {
+  const colors = useColors();
   const pathname = usePathname();
   const { width } = useWindowDimensions();
 
@@ -35,7 +36,7 @@ export function BottomTabBar() {
         alignItems: 'center',
         paddingTop: 12,
         paddingBottom: 32,
-        backgroundColor: 'rgba(253, 249, 243, 0.8)',
+        backgroundColor: colors.bg,
         borderTopWidth: 1,
         borderTopColor: colors.border,
       }}

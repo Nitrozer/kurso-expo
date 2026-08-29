@@ -7,7 +7,7 @@ import { Share2 } from 'lucide-react-native';
 import { useNotesStore } from '../../stores/notesStore';
 import { useSubjectsStore } from '../../stores/subjectsStore';
 import { useScheduleStore } from '../../stores/scheduleStore';
-import { colors } from '../../theme/colors';
+import { useColors } from '../../theme/useColors';
 import { fonts } from '../../theme/typography';
 import { KText } from '../ui/Text';
 
@@ -18,6 +18,7 @@ type Props = {
 };
 
 export function NoteEditor({ noteId }: Props) {
+  const colors = useColors();
   const { getNote, updateNote } = useNotesStore();
   const { subjects } = useSubjectsStore();
   const { events } = useScheduleStore();
@@ -109,7 +110,7 @@ export function NoteEditor({ noteId }: Props) {
   };
 
   return (
-    <ScrollView className="flex-1 bg-parchment" showsVerticalScrollIndicator={false}>
+    <ScrollView className="flex-1" style={{ backgroundColor: colors.bg }} showsVerticalScrollIndicator={false}>
       {/* Share button */}
       <View style={{ paddingHorizontal: 32, paddingTop: 12, alignItems: 'flex-end' }}>
         <Pressable
@@ -173,7 +174,7 @@ export function NoteEditor({ noteId }: Props) {
           >
             <KText
               preset="badgePill"
-              color={selectedSubjectId === s.id ? '#FFFFFF' : colors.inkSoft}
+              color={selectedSubjectId === s.id ? colors.onDark : colors.inkSoft}
             >
               {s.name}
             </KText>
@@ -485,7 +486,7 @@ export function NoteEditor({ noteId }: Props) {
           fontFamily: fonts.sans.regular,
           fontSize: 16,
           lineHeight: 28,
-          color: '#444656',
+          color: colors.inkBody,
           paddingHorizontal: 32,
           paddingBottom: 120,
           minHeight: 400,

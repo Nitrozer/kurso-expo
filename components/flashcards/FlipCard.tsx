@@ -1,7 +1,7 @@
 import { Pressable, View } from 'react-native';
 import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
 import { KText } from '../ui/Text';
-import { colors } from '../../theme/colors';
+import { useColors } from '../../theme/useColors';
 import { fonts } from '../../theme/typography';
 
 type Props = {
@@ -14,6 +14,7 @@ type Props = {
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
 export function FlipCard({ front, back, isFlipped, onFlip }: Props) {
+  const colors = useColors();
   const rotation = useSharedValue(0);
 
   const frontStyle = useAnimatedStyle(() => ({

@@ -3,9 +3,10 @@ import { View, TextInput, Pressable, Text, Alert, KeyboardAvoidingView, Platform
 import { Link, router } from 'expo-router';
 import { Eye, EyeOff } from 'lucide-react-native';
 import { signIn } from '../../lib/auth';
-import { colors } from '../../theme/colors';
+import { useColors } from '../../theme/useColors';
 
 export default function LoginScreen() {
+  const colors = useColors();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -26,7 +27,7 @@ export default function LoginScreen() {
 
   return (
     <KeyboardAvoidingView
-      style={{ flex: 1, backgroundColor: '#FDF9F3' }}
+      style={{ flex: 1, backgroundColor: colors.surfaceBright }}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
       <ScrollView
@@ -61,14 +62,14 @@ export default function LoginScreen() {
             <Text style={{ fontFamily: 'Fraunces_700Bold', fontSize: 28, color: colors.ink, marginBottom: 8 }}>
               Bienvenue
             </Text>
-            <Text style={{ fontFamily: 'DMSans_400Regular', fontSize: 14, color: '#5F5E5E' }}>
+            <Text style={{ fontFamily: 'DMSans_400Regular', fontSize: 14, color: colors.inkBody }}>
               Identifiez-vous pour acceder a vos manuscrits.
             </Text>
           </View>
 
           {/* Email Field */}
           <View style={{ marginBottom: 24 }}>
-            <Text style={{ fontFamily: 'DMSans_500Medium', fontSize: 11, color: '#5F5E5E', letterSpacing: 1.6, textTransform: 'uppercase', marginBottom: 8, paddingLeft: 4 }}>
+            <Text style={{ fontFamily: 'DMSans_500Medium', fontSize: 11, color: colors.inkBody, letterSpacing: 1.6, textTransform: 'uppercase', marginBottom: 8, paddingLeft: 4 }}>
               Email
             </Text>
             <TextInput
@@ -85,7 +86,7 @@ export default function LoginScreen() {
                 height: 56,
                 paddingHorizontal: 16,
                 borderWidth: 1,
-                borderColor: '#E0D8CE',
+                borderColor: colors.borderSoft,
                 borderRadius: 14,
                 backgroundColor: 'transparent',
               }}
@@ -94,7 +95,7 @@ export default function LoginScreen() {
 
           {/* Password Field */}
           <View style={{ marginBottom: 32 }}>
-            <Text style={{ fontFamily: 'DMSans_500Medium', fontSize: 11, color: '#5F5E5E', letterSpacing: 1.6, textTransform: 'uppercase', marginBottom: 8, paddingLeft: 4 }}>
+            <Text style={{ fontFamily: 'DMSans_500Medium', fontSize: 11, color: colors.inkBody, letterSpacing: 1.6, textTransform: 'uppercase', marginBottom: 8, paddingLeft: 4 }}>
               Mot de passe
             </Text>
             <View>
@@ -112,7 +113,7 @@ export default function LoginScreen() {
                   paddingHorizontal: 16,
                   paddingRight: 48,
                   borderWidth: 1,
-                  borderColor: '#E0D8CE',
+                  borderColor: colors.borderSoft,
                   borderRadius: 14,
                   backgroundColor: 'transparent',
                 }}
@@ -143,7 +144,7 @@ export default function LoginScreen() {
               marginBottom: 24,
             }}
           >
-            <Text style={{ fontFamily: 'DMSans_500Medium', fontSize: 16, color: '#FDF9F3' }}>
+            <Text style={{ fontFamily: 'DMSans_500Medium', fontSize: 16, color: colors.darkText }}>
               {loading ? 'Connexion...' : 'Se connecter'}
             </Text>
           </Pressable>
@@ -157,11 +158,11 @@ export default function LoginScreen() {
 
           {/* Divider */}
           <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 48 }}>
-            <View style={{ flex: 1, height: 1, backgroundColor: 'rgba(197,197,217,0.3)' }} />
+            <View style={{ flex: 1, height: 1, backgroundColor: colors.border }} />
             <Text style={{ fontFamily: 'DMSans_500Medium', fontSize: 10, color: colors.inkGhost, letterSpacing: 2, textTransform: 'uppercase', marginHorizontal: 16 }}>
               Ou
             </Text>
-            <View style={{ flex: 1, height: 1, backgroundColor: 'rgba(197,197,217,0.3)' }} />
+            <View style={{ flex: 1, height: 1, backgroundColor: colors.border }} />
           </View>
 
           {/* Google button */}
@@ -169,13 +170,13 @@ export default function LoginScreen() {
             style={{
               height: 56,
               borderWidth: 1,
-              borderColor: '#C5C5D9',
+              borderColor: colors.borderStrong,
               borderRadius: 14,
               flexDirection: 'row',
               alignItems: 'center',
               justifyContent: 'center',
               gap: 12,
-              backgroundColor: '#F7F3ED',
+              backgroundColor: colors.bg,
               marginBottom: 48,
             }}
           >
@@ -186,7 +187,7 @@ export default function LoginScreen() {
 
           {/* Create account */}
           <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
-            <Text style={{ fontFamily: 'DMSans_400Regular', fontSize: 14, color: '#5F5E5E' }}>
+            <Text style={{ fontFamily: 'DMSans_400Regular', fontSize: 14, color: colors.inkBody }}>
               Nouveau ici ?{' '}
             </Text>
             <Link href="/(auth)/register">

@@ -1,7 +1,8 @@
 import { Pressable, View, Text } from 'react-native';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { textPresets } from '../../theme/typography';
-import { colors } from '../../theme/colors';
+import { useColors } from '../../theme/useColors';
+import type { Palette } from '../../theme/colors';
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
@@ -14,12 +15,12 @@ type Props = {
   variant: Variant;
 };
 
-const variantConfig = {
+const getVariantConfig = (colors: Palette) => ({
   big: {
     minWidth: 130,
     bg: colors.dark,
     borderColor: 'transparent',
-    textColor: '#FFFFFF',
+    textColor: colors.onDark,
     labelColor: colors.darkMuted,
     ghostOpacity: 0.07,
   },
@@ -41,16 +42,17 @@ const variantConfig = {
   },
   accent: {
     minWidth: 100,
-    bg: '#FDF9F3',
+    bg: colors.surfaceBright,
     borderColor: colors.border,
     textColor: colors.ink,
     labelColor: colors.darkMuted,
     ghostOpacity: 0.04,
   },
-};
+});
 
 export function StatBlock({ value, unit, label, variant }: Props) {
-  const config = variantConfig[variant];
+  const colors = useColors();
+  const config = getVariantConfig(colors)[variant];
   const pressed = useSharedValue(0);
 
   const animatedStyle = useAnimatedStyle(() => ({

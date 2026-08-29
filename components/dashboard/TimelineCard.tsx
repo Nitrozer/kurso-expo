@@ -2,7 +2,7 @@ import { View, Text, Pressable } from 'react-native';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { router } from 'expo-router';
 import { textPresets } from '../../theme/typography';
-import { colors } from '../../theme/colors';
+import { useColors } from '../../theme/useColors';
 import { Badge } from '../ui/Badge';
 import { formatTime } from '../../lib/utils';
 import { useNotesStore } from '../../stores/notesStore';
@@ -19,6 +19,7 @@ type Props = {
 };
 
 export function TimelineCard({ event, status, subject }: Props) {
+  const colors = useColors();
   const pressed = useSharedValue(0);
   const linkedNote = useNotesStore((s) => s.notes.find((n) => n.event_id === event.id));
 
@@ -35,7 +36,7 @@ export function TimelineCard({ event, status, subject }: Props) {
 
   const cardBg = isNow ? colors.dark : colors.bg;
   const cardBorder = isNow ? colors.dark : colors.border;
-  const titleColor = isNow ? '#FFFFFF' : colors.ink;
+  const titleColor = isNow ? colors.onDark : colors.ink;
   const detailColor = isNow ? colors.darkMuted : colors.inkSoft;
 
   return (

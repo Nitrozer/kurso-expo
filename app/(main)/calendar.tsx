@@ -11,7 +11,7 @@ import { UpcomingEvents } from '../../components/calendar/UpcomingEvents';
 import { useScheduleStore } from '../../stores/scheduleStore';
 import { useAuthStore } from '../../stores/authStore';
 import { getMonthName } from '../../lib/utils';
-import { colors } from '../../theme/colors';
+import { useColors } from '../../theme/useColors';
 
 type ViewMode = 'month' | 'week' | 'day';
 
@@ -31,6 +31,7 @@ function getWeekStart(date: Date): Date {
 }
 
 export default function CalendarScreen() {
+  const colors = useColors();
   const [selectedView, setSelectedView] = useState<ViewMode>('month');
   const [selectedDate, setSelectedDate] = useState(() => {
     const d = new Date();
@@ -47,7 +48,7 @@ export default function CalendarScreen() {
   const currentDate = useMemo(() => new Date(selectedDate + 'T00:00:00'), [selectedDate]);
 
   return (
-    <View className="flex-1 bg-parchment">
+    <View className="flex-1" style={{ backgroundColor: colors.bg }}>
       {/* Header */}
       <View className="px-xxl pt-xxl pb-lg">
         <View className="flex-row items-center justify-between mb-lg">

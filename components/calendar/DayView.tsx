@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { View, ScrollView, Pressable, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import { KText } from '../ui/Text';
-import { colors } from '../../theme/colors';
+import { useColors } from '../../theme/useColors';
 import { useScheduleStore } from '../../stores/scheduleStore';
 import type { ScheduleEvent } from '../../types';
 
@@ -20,6 +20,7 @@ function toDateKey(d: Date): string {
 }
 
 export function DayView({ events, date }: Props) {
+  const colors = useColors();
   const dateKey = toDateKey(date);
   const totalHours = HOUR_END - HOUR_START;
   const router = useRouter();

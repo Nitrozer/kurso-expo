@@ -3,7 +3,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useAudioRecorder, AudioModule, RecordingPresets, useAudioPlayer } from 'expo-audio';
 import { Mic, Square, Play, Pause, X } from 'lucide-react-native';
 import { KText } from '../ui/Text';
-import { colors } from '../../theme/colors';
+import { useColors } from '../../theme/useColors';
 import { supabase } from '../../lib/supabase';
 import { useAuthStore } from '../../stores/authStore';
 import Animated, {
@@ -28,6 +28,7 @@ function formatDuration(seconds: number): string {
 }
 
 export function VoiceRecorder({ pageId, onClose }: Props) {
+  const colors = useColors();
   const session = useAuthStore((s) => s.session);
   const [state, setState] = useState<RecordingState>('idle');
   const [duration, setDuration] = useState(0);
@@ -183,7 +184,7 @@ export function VoiceRecorder({ pageId, onClose }: Props) {
               width: 44,
               height: 44,
               borderRadius: 22,
-              backgroundColor: '#C04040',
+              backgroundColor: colors.alertRed,
               alignItems: 'center',
               justifyContent: 'center',
             }}
@@ -201,7 +202,7 @@ export function VoiceRecorder({ pageId, onClose }: Props) {
                 width: 16,
                 height: 16,
                 borderRadius: 8,
-                backgroundColor: '#C04040',
+                backgroundColor: colors.alertRed,
               },
               pulseStyle,
             ]}
